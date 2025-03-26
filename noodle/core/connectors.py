@@ -1,6 +1,6 @@
-from typing import Type, TypeVar, Generic, Optional, TYPE_CHECKING, Any, List, Protocol, Sequence
 from enum import Enum, auto
-from abc import ABC, abstractmethod
+from typing import TYPE_CHECKING, Any, List, Optional, Protocol, Sequence, Tuple, TypeVar
+
 from noodle.core.logging import (
     get_connector_logger,
     get_connector_runtime_logger,
@@ -36,7 +36,7 @@ class Connector(Protocol):
     def signature(self) -> Any: ...
     def connect(self, other: Any) -> ConnectResult: ...
     def get_connections(self) -> Sequence["Connector"]: ...
-    def validate(self): ...
+    def validate(self) -> None: ...
 
     def __str__(self) -> str:
         return f"{self.__module__}.{self.__class__.__name__}[{self.signature}]"
@@ -51,16 +51,18 @@ class Output(Connector, Protocol[_T_co]):
     def get_value(self) -> _T_co: ...
 
 
-def connect(output: Output[_T], input: Input[_T]):
-    output.connect(input)
-    input.connect(output)
+def connect(output: Output[_T], input: Input[_T]) -> Tuple[ConnectResult, ConnectResult]:
+    output_result = output.connect(input)
+    input_result = input.connect(output)
+
+    return output_result, input_result
 
 
 # Input types
 
 
 class SingleInput(Input[_T]):
-    def __init__(self, node: "Node", name: str, signature: Any):
+    def __init__(self, node: "Node", name: str, signature: Any) -> None:
         self._node = node
         self._name = name
         self._signature = signature
@@ -102,7 +104,7 @@ class RequiredInput(SingleInput[_T]):
 
         return self._connection.get_value()
 
-    def validate(self):
+    def validate(self) -> None:
         if self._connection:
             if not check_types(self._connection.signature, self.signature):
                 self._validation_logger.warning(
@@ -121,7 +123,7 @@ class OptionalInput(SingleInput[_T]):
 
         return None
 
-    def validate(self):
+    def validate(self) -> None:
         if self._connection:
             if not check_types(self._connection.signature, self.signature):
                 self._validation_logger.warning(
@@ -131,7 +133,7 @@ class OptionalInput(SingleInput[_T]):
 
 
 class MultiInput(Input[_T]):
-    def __init__(self, node: "Node", name: str, signature: Any):
+    def __init__(self, node: "Node", name: str, signature: Any) -> None:
         self._node = node
         self._name = name
         self._signature = signature
@@ -163,7 +165,7 @@ class MultiInput(Input[_T]):
     def get_connections(self) -> Sequence[Connector]:
         return self._connections
 
-    def validate(self):
+    def validate(self) -> None:
         for connection in self._connections:
             if not check_types(connection.signature, self.signature):
                 self._validation_logger.warning(
@@ -181,7 +183,7 @@ class RequiredMultiInput(MultiInput[_T]):
 
         return [connection.get_value() for connection in self._connections]
 
-    def validate(self):
+    def validate(self) -> None:
         super().validate()
         if not self._connections:
             self._validation_logger.error(f"Nothing connected to input '{self.name}'.")
@@ -192,7 +194,7 @@ class OptionalMultiInput(MultiInput[_T]):
     def get_value(self) -> List[_T]:
         return [connection.get_value() for connection in self._connections]
 
-    def validate(self):
+    def validate(self) -> None:
         pass
 
 
@@ -201,7 +203,7 @@ NULL_VALUE_SENTINEL = object()
 
 
 class SharedOutput(Output[_T]):
-    def __init__(self, node: "Node", name: str, signature: Any):
+    def __init__(self, node: "Node", name: str, signature: Any) -> None:
         self._node = node
         self._name = name
         self._signature = signature
@@ -228,7 +230,7 @@ class SharedOutput(Output[_T]):
         assert self._value is not NULL_VALUE_SENTINEL
         return self._value
 
-    def set_value(self, value: _T):
+    def set_value(self, value: _T) -> None:
         self._value = value
 
     def connect(self, other: "Input[_T]") -> ConnectResult:
@@ -241,5 +243,5 @@ class SharedOutput(Output[_T]):
     def get_connections(self) -> Sequence[Connector]:
         return self._connections
 
-    def validate(self):
+    def validate(self) -> None:
         pass

@@ -1,10 +1,19 @@
-from noodle.core.node import Node
 from noodle.core.connectors import (
     Input,
-    Output,
-    RequiredInput,
     OptionalInput,
-    RequiredMultiInput,
     OptionalMultiInput,
     Output,
+    RequiredInput,
+    RequiredMultiInput,
 )
+from noodle.core.node import Node
+
+__all__ = [
+    Input,
+    OptionalInput,
+    OptionalMultiInput,
+    Output,
+    RequiredInput,
+    RequiredMultiInput,
+    Node,
+]

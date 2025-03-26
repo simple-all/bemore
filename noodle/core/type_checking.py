@@ -1,5 +1,4 @@
-from typing import Type, Any, Callable, Dict, Optional
-
+from typing import Any, Callable, Dict, Optional, Type
 
 _to_type_dispatch: Dict[Any, Callable[[Type], bool]] = {}
 

@@ -1,6 +1,7 @@
-from noodle.core.connectors import Input, Output, Connector
-from typing import Iterable
 from abc import ABC, abstractmethod
+from typing import Iterable
+
+from noodle.core.connectors import Connector
 from noodle.core.logging import get_node_logger, get_node_runtime_logger, get_node_validation_logger
 
 

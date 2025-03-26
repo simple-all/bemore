@@ -1,7 +1,8 @@
 import logging
 import sys
-import colorama
 from typing import Optional
+
+import colorama
 
 
 class ColoredConsoleFormatter(logging.Formatter):

@@ -1,6 +1,8 @@
-import networkx as nx
-from noodle.core.node import Node
 from typing import List
+
+import networkx as nx
+
+from noodle.core.node import Node
 
 
 class System:

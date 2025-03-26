@@ -1,22 +1,19 @@
-from typing import Any, List, SupportsIndex
-from noodle.core.node import Node
+import math
+from typing import Any, Generic, List, SupportsIndex, TypeVar
+
 from noodle.core.connectors import (
     Connector,
     Input,
+    Output,
     RequiredInput,
-    Output,
     RequiredMultiInput,
-    Output,
-    Input,
-    Output,
     SharedOutput,
-    Generic,
-    TypeVar,
 )
-import math
+from noodle.core.node import Node
 
 
-class MathNode(Node): ...
+class MathNode(Node):
+    pass
 
 
 _T = TypeVar("_T")

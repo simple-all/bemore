@@ -1,12 +1,5 @@
-from typing import TYPE_CHECKING
 import logging
-
-if TYPE_CHECKING:
-    from noodle.core.connectors import Connector
-    from noodle.core.node import Node
-
 from typing import TYPE_CHECKING, Mapping, Union
-import logging
 
 if TYPE_CHECKING:
     from noodle.core.connectors import Connector
