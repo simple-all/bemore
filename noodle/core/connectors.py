@@ -202,7 +202,7 @@ class OptionalMultiInput(MultiInput[_T]):
 NULL_VALUE_SENTINEL = object()
 
 
-class SharedOutput(Output[_T]):
+class BasicOutput(Output[_T]):
     def __init__(self, node: "Node", name: str, signature: Any) -> None:
         self._node = node
         self._name = name
@@ -234,7 +234,7 @@ class SharedOutput(Output[_T]):
         self._value = value
 
     def connect(self, other: "Input[_T]") -> ConnectResult:
-        if input in self._connections:
+        if other in self._connections:
             return ConnectResult.ALREADY_CONNECTED
 
         self._connections.append(other)

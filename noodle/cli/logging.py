@@ -1,6 +1,6 @@
 import logging
 import sys
-from typing import Optional
+from typing import Any, Literal, Mapping, Optional, TextIO
 
 import colorama
 
@@ -17,11 +17,25 @@ class ColoredConsoleFormatter(logging.Formatter):
     DEFAULT_LEVEL_COLOR = colorama.Fore.CYAN
     DEFAULT_FORMAT = "{__level_color__}{levelname}{__reset_color__} | {name} | {message}"
 
-    def __init__(self, fmt: Optional[str] = None, style="{", **kwargs):
+    def __init__(
+        self,
+        fmt: Optional[str] = None,
+        datefmt: Optional[str] = None,
+        style: Literal["%", "{", "$"] = "{",
+        validate: bool = True,
+        *,
+        defaults: Optional[Mapping[str, Any]] = None,
+    ):
         if fmt is None:
             fmt = self.DEFAULT_FORMAT
 
-        super().__init__(fmt=fmt, style=style, **kwargs)  # type: ignore
+        super().__init__(
+            fmt=fmt,
+            datefmt=datefmt,
+            style=style,
+            validate=validate,
+            defaults=defaults,
+        )
 
     def formatMessage(self, record: logging.LogRecord) -> str:
         color_keys = {
@@ -32,7 +46,7 @@ class ColoredConsoleFormatter(logging.Formatter):
         return super().formatMessage(record)
 
 
-def setup_stdout() -> logging.StreamHandler:
+def setup_stdout() -> logging.StreamHandler[TextIO]:
     root = logging.getLogger()
     handler = logging.StreamHandler(sys.stdout)
     handler.setFormatter(ColoredConsoleFormatter())
@@ -41,5 +55,5 @@ def setup_stdout() -> logging.StreamHandler:
     return handler
 
 
-def basic_setup():
+def basic_setup() -> None:
     setup_stdout()

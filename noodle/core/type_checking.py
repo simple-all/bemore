@@ -1,18 +1,20 @@
-from typing import Any, Callable, Dict, Optional, Type
+from typing import Any, Callable, Dict, Optional
 
-_to_type_dispatch: Dict[Any, Callable[[Type], bool]] = {}
+TypeCheckerMethod = Callable[[Any], bool]
+
+_to_type_dispatch: Dict[Any, TypeCheckerMethod] = {}
 
 
-def to_type_handler(to_what: Any) -> Callable:
+def to_type_handler(to_what: Any) -> Callable[[TypeCheckerMethod], TypeCheckerMethod]:
 
-    def _add_to_dispatch(handler: Callable[[Type], bool]) -> Callable[[Type], bool]:
+    def _add_to_dispatch(handler: TypeCheckerMethod) -> TypeCheckerMethod:
         _to_type_dispatch[to_what] = handler
         return handler
 
     return _add_to_dispatch
 
 
-def get_type_handler(to_type: Any) -> Optional[Callable[[Type], bool]]:
+def get_type_handler(to_type: Any) -> Optional[TypeCheckerMethod]:
     return _to_type_dispatch.get(to_type)
 
 

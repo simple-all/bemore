@@ -48,3 +48,6 @@ jobs:
 
         git diff --exit-code .
         exit $?
+    - name: Test with mypy
+      run: |
+        mypy --strict noodle tests
