@@ -2,12 +2,12 @@ import math
 from typing import Any, Generic, List, SupportsIndex, TypeVar
 
 from noodle.core.connectors import (
+    BasicOutput,
     Connector,
     Input,
     Output,
     RequiredInput,
     RequiredMultiInput,
-    SharedOutput,
 )
 from noodle.core.node import Node
 
@@ -24,7 +24,7 @@ class Indexer(MathNode, Generic[_T]):
         super().__init__()
         self.indexable: RequiredInput[List[_T]] = RequiredInput(self, "indexable", SupportsIndex)
         self.index: RequiredInput[int] = RequiredInput(self, "index", int)
-        self.output: SharedOutput[_T] = SharedOutput(self, "output", Any)
+        self.output: BasicOutput[_T] = BasicOutput(self, "output", Any)
 
     def run(self) -> None:
         input_list = self.indexable.get_value()
@@ -46,7 +46,7 @@ class Indexer(MathNode, Generic[_T]):
 class Int(MathNode):
     def __init__(self, value: int) -> None:
         super().__init__()
-        self.output: SharedOutput[int] = SharedOutput(self, "output", int)
+        self.output: BasicOutput[int] = BasicOutput(self, "output", int)
         self._value = value
 
     def run(self) -> None:
@@ -65,7 +65,7 @@ class Int(MathNode):
 class Float(MathNode):
     def __init__(self, value: float) -> None:
         super().__init__()
-        self.output: SharedOutput[float] = SharedOutput(self, "output", float)
+        self.output: BasicOutput[float] = BasicOutput(self, "output", float)
         self._value = value
 
     def run(self) -> None:
@@ -84,7 +84,7 @@ class Float(MathNode):
 class String(MathNode):
     def __init__(self, value: str) -> None:
         super().__init__()
-        self.output: SharedOutput[str] = SharedOutput(self, "output", str)
+        self.output: BasicOutput[str] = BasicOutput(self, "output", str)
         self._value = value
 
     def run(self) -> None:
@@ -104,7 +104,7 @@ class Sum(MathNode):
     def __init__(self) -> None:
         super().__init__()
         self.input: RequiredMultiInput[float] = RequiredMultiInput(self, "input", float)
-        self.output: SharedOutput[float] = SharedOutput(self, "output", float)
+        self.output: BasicOutput[float] = BasicOutput(self, "output", float)
 
     def run(self) -> None:
         in_value = self.input.get_value()
@@ -125,7 +125,7 @@ class Product(MathNode):
     def __init__(self) -> None:
         super().__init__()
         self.input: RequiredMultiInput[float] = RequiredMultiInput(self, "input", float)
-        self.output: SharedOutput[float] = SharedOutput(self, "output", float)
+        self.output: BasicOutput[float] = BasicOutput(self, "output", float)
 
     def run(self) -> None:
         value = math.prod(self.input.get_value())

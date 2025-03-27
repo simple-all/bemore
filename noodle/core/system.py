@@ -1,13 +1,26 @@
-from typing import List
+from typing import List, Protocol
 
 import networkx as nx
 
 from noodle.core.node import Node
 
 
-class System:
+class System(Protocol):
+    @property
+    def nodes(self) -> List[Node]: ...
+    def add_node(self, node: Node) -> None: ...
+    def add_nodes(self, *nodes: Node) -> None: ...
+    def validate(self) -> None: ...
+    def run(self) -> None: ...
+
+
+class BasicSystem(System):
     def __init__(self) -> None:
         self._nodes: List[Node] = []
+
+    @property
+    def nodes(self) -> List[Node]:
+        return self._nodes
 
     def add_node(self, node: Node) -> None:
         assert node not in self._nodes
@@ -16,6 +29,10 @@ class System:
     def add_nodes(self, *args: Node) -> None:
         for node in args:
             self.add_node(node)
+
+    def validate(self) -> None:
+        for node in self._nodes:
+            node.validate()
 
     def run(self) -> None:
         # Construct the node graph

@@ -18,7 +18,7 @@ class Node(ABC):
         return self._name
 
     @name.setter
-    def name(self, name: str):
+    def name(self, name: str) -> None:
         self._name = name
 
     @abstractmethod

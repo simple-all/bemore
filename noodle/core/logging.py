@@ -1,9 +1,16 @@
 import logging
-from typing import TYPE_CHECKING, Mapping, Union
+from types import TracebackType
+from typing import TYPE_CHECKING, Mapping, Tuple, Union
 
 if TYPE_CHECKING:
     from noodle.core.connectors import Connector
     from noodle.core.node import Node
+
+    # mypy fix
+    # https://github.com/python/typeshed/issues/7855
+    _LoggerAdapter = logging.LoggerAdapter[logging.Logger]
+else:
+    _LoggerAdapter = logging.LoggerAdapter
 
 
 def _get_qualified_name(obj: object) -> str:
@@ -24,16 +31,26 @@ def _get_qualified_connector_name(connector: "Connector") -> str:
     return f"{node_name}.{qualified_name}_{hash(connector)}_{connector.name}"
 
 
-class NodeLogger(logging.LoggerAdapter):
-    def __init__(self, logger: logging.Logger, node: "Node"):
+_ArgsType = Union[Tuple[object, ...], Mapping[str, object]]
+_SysExcInfoType = Union[
+    Tuple[type[BaseException], BaseException, TracebackType | None], Tuple[None, None, None]
+]
+_ExcInfoType = Union[None, bool, _SysExcInfoType, BaseException]
+
+
+class NodeLogger(_LoggerAdapter):
+    def __init__(self, logger: logging.Logger, node: "Node") -> None:
         super().__init__(logger)
         self._node = node
 
     def _log(
         self,
-        *args,
+        level: int,
+        msg: object,
+        args: _ArgsType,
+        exc_info: _ExcInfoType = None,
         extra: Union[Mapping[str, object], None] = None,
-        **kwargs,
+        stack_info: bool = False,
     ) -> None:
         if extra is not None:
             assert "connector" not in extra, (
@@ -48,19 +65,22 @@ class NodeLogger(logging.LoggerAdapter):
 
         new_extra["node"] = self._node
 
-        return super()._log(*args, extra=extra, **kwargs)
+        return super()._log(level, msg, args, exc_info=exc_info, extra=extra, stack_info=stack_info)
 
 
-class ConnectorLogger(logging.LoggerAdapter):
-    def __init__(self, logger: logging.Logger, connector: "Connector"):
+class ConnectorLogger(_LoggerAdapter):
+    def __init__(self, logger: logging.Logger, connector: "Connector") -> None:
         super().__init__(logger)
         self._connector = connector
 
     def _log(
         self,
-        *args,
+        level: int,
+        msg: object,
+        args: _ArgsType,
+        exc_info: _ExcInfoType = None,
         extra: Union[Mapping[str, object], None] = None,
-        **kwargs,
+        stack_info: bool = False,
     ) -> None:
         if extra is not None:
             assert "connector" not in extra, (
@@ -75,7 +95,7 @@ class ConnectorLogger(logging.LoggerAdapter):
 
         new_extra["connector"] = self._connector
 
-        return super()._log(*args, extra=extra, **kwargs)
+        return super()._log(level, msg, args, exc_info=exc_info, extra=extra, stack_info=stack_info)
 
 
 # General loggers
