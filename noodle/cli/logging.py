@@ -23,18 +23,17 @@ class ColoredConsoleFormatter(logging.Formatter):
         datefmt: Optional[str] = None,
         style: Literal["%", "{", "$"] = "{",
         validate: bool = True,
-        *,
-        defaults: Optional[Mapping[str, Any]] = None,
     ):
         if fmt is None:
             fmt = self.DEFAULT_FORMAT
+
+        sys.version
 
         super().__init__(
             fmt=fmt,
             datefmt=datefmt,
             style=style,
             validate=validate,
-            defaults=defaults,
         )
 
     def formatMessage(self, record: logging.LogRecord) -> str:
