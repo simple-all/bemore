@@ -1,6 +1,7 @@
+import pytest
+
 from noodle import BasicSystem, Float, Int, connect
 from noodle.math.basic import Divide, Modulo, Product, Subtract, Sum
-import pytest
 
 FLOAT_ABS_TOL = 1e-12
 
