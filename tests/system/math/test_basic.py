@@ -1,5 +1,8 @@
 from noodle import BasicSystem, Float, Int, connect
 from noodle.math.basic import Divide, Modulo, Product, Subtract, Sum
+import pytest
+
+FLOAT_ABS_TOL = 1e-12
 
 
 def test_sum_floats() -> None:
@@ -18,7 +21,7 @@ def test_sum_floats() -> None:
     system.validate()
     system.run()
 
-    assert summer.output.get_value() == 1.2 + 4.75 + 9.87
+    assert summer.output.get_value() == pytest.approx(1.2 + 4.75 + 9.87, abs=FLOAT_ABS_TOL)
 
 
 def test_sum_ints() -> None:
@@ -57,7 +60,7 @@ def test_product_floats() -> None:
     system.validate()
     system.run()
 
-    assert proder.output.get_value() == 1.2 * 4.75 * 9.87
+    assert proder.output.get_value() == pytest.approx(1.2 * 4.75 * 9.87, abs=FLOAT_ABS_TOL)
 
 
 def test_product_ints() -> None:
