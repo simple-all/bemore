@@ -40,7 +40,7 @@ _ExcInfoType = Union[None, bool, _SysExcInfoType, BaseException]
 
 class NodeLogger(_LoggerAdapter):
     def __init__(self, logger: logging.Logger, node: "Node") -> None:
-        super().__init__(logger, extra=None)
+        super().__init__(logger, extra={})
         self._node = node
 
     def _log(
@@ -70,7 +70,7 @@ class NodeLogger(_LoggerAdapter):
 
 class ConnectorLogger(_LoggerAdapter):
     def __init__(self, logger: logging.Logger, connector: "Connector") -> None:
-        super().__init__(logger, extra=None)
+        super().__init__(logger, extra={})
         self._connector = connector
 
     def _log(
