@@ -27,7 +27,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        python -m pip install flake8 pytest mypy types-colorama types-networkx types-setuptools
+        python -m pip install flake8 pytest mypy types-colorama types-networkx types-setuptools isort
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     - name: Lint with flake8
       run: |
@@ -40,4 +40,11 @@ jobs:
         pytest ./tests
     - name: Test formatting
       run: |
-        ./format.sh
+        isort ./noodle
+        isort ./tests
+
+        black ./noodle
+        black ./tests
+
+        git diff --exit-code .
+        exit $?
