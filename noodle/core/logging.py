@@ -1,6 +1,6 @@
 import logging
 from types import TracebackType
-from typing import TYPE_CHECKING, Mapping, Tuple, Union
+from typing import TYPE_CHECKING, Mapping, Optional, Tuple, Union
 
 if TYPE_CHECKING:
     from noodle.core.connectors import Connector
@@ -33,7 +33,7 @@ def _get_qualified_connector_name(connector: "Connector") -> str:
 
 _ArgsType = Union[Tuple[object, ...], Mapping[str, object]]
 _SysExcInfoType = Union[
-    Tuple[type[BaseException], BaseException, TracebackType | None], Tuple[None, None, None]
+    Tuple[type[BaseException], BaseException, Optional[TracebackType]], Tuple[None, None, None]
 ]
 _ExcInfoType = Union[None, bool, _SysExcInfoType, BaseException]
 
