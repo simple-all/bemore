@@ -1,3 +1,5 @@
+from typing import Dict
+
 import pytest
 
 from noodle import BasicSystem, Float, Int, connect, generate_code
@@ -40,8 +42,8 @@ def test_code_gen() -> None:
 
     code = generate_code(system)
 
-    globals = {}
-    locals = {}
+    globals: Dict[str, object] = {}
+    locals: Dict[str, object] = {}
     exec(code, globals, locals)
 
     assert locals[summer.output.code_gen_name] == pytest.approx(
