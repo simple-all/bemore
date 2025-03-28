@@ -1,6 +1,6 @@
 import pytest
 
-from noodle import BasicSystem, Float, Int, connect
+from noodle import BasicSystem, Float, Int, connect, generate_code
 from noodle.math.basic import Divide, Modulo, Product, Subtract, Sum
 
 FLOAT_ABS_TOL = 1e-12
@@ -23,6 +23,31 @@ def test_sum_floats() -> None:
     system.run()
 
     assert summer.output.get_value() == pytest.approx(1.2 + 4.75 + 9.87, abs=FLOAT_ABS_TOL)
+
+
+def test_code_gen() -> None:
+    a = Float(1.2)
+    b = Float(4.75)
+    c = Float(9.87)
+    summer = Sum()
+
+    connect(a.output, summer.input)
+    connect(b.output, summer.input)
+    connect(c.output, summer.input)
+
+    system = BasicSystem()
+    system.add_nodes(a, b, c, summer)
+
+    code = generate_code(system)
+
+    globals = {}
+    locals = {}
+    exec(code, globals, locals)
+
+    assert locals[summer.output.code_gen_name] == pytest.approx(
+        1.2 + 4.75 + 9.87,
+        abs=FLOAT_ABS_TOL,
+    )
 
 
 def test_sum_ints() -> None:

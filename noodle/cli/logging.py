@@ -1,6 +1,6 @@
 import logging
 import sys
-from typing import Any, Literal, Mapping, Optional, TextIO
+from typing import Literal, Optional, TextIO
 
 import colorama
 

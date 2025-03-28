@@ -1,6 +1,8 @@
+import ast
 from enum import Enum, auto
 from typing import TYPE_CHECKING, Any, List, Optional, Protocol, Sequence, Tuple, TypeVar
 
+from noodle import CodeGenerator
 from noodle.core.logging import (
     get_connector_logger,
     get_connector_runtime_logger,
@@ -25,7 +27,8 @@ class ConnectResult(Enum):
 # Connector protocols
 
 
-class Connector(Protocol):
+class Connector(CodeGenerator, Protocol):
+
     @property
     def node(self) -> "Node": ...
 
@@ -34,6 +37,10 @@ class Connector(Protocol):
 
     @property
     def signature(self) -> Any: ...
+
+    @property
+    def code_gen_name(self) -> str: ...
+
     def connect(self, other: Any) -> ConnectResult: ...
     def get_connections(self) -> Sequence["Connector"]: ...
     def validate(self) -> None: ...
@@ -114,6 +121,15 @@ class RequiredInput(SingleInput[_T]):
         else:
             self._validation_logger.error(f"Nothing connected to input '{self.name}'.")
 
+    def generate_ast(self) -> ast.Module:
+        # Required single input delegates code gen to its connection
+        return ast.Module(body=[], type_ignores=[])
+
+    @property
+    def code_gen_name(self) -> str:
+        assert self._connection is not None
+        return self._connection.code_gen_name
+
 
 class OptionalInput(SingleInput[_T]):
 
@@ -130,6 +146,21 @@ class OptionalInput(SingleInput[_T]):
                     f"Signature '{self._signature}' does not match connection's "
                     f"signature '{self._connection}'."
                 )
+
+    def generate_ast(self) -> ast.Module:
+        # Optional single input delegates code gen to its connection if connected
+        if self._connection:
+            return ast.Module(body=[], type_ignores=[])
+
+        line = f"{self.code_gen_name} = None\n"
+        return ast.parse(line)
+
+    @property
+    def code_gen_name(self) -> str:
+        if self._connection:
+            return self._connection.code_gen_name
+
+        return f"{self.name}_{hash(self)}"
 
 
 class MultiInput(Input[_T]):
@@ -172,6 +203,15 @@ class MultiInput(Input[_T]):
                     f"Signature '{self._signature}' does not match connection's "
                     f"signature '{connection}'."
                 )
+
+    def generate_ast(self) -> ast.Module:
+        input_vars = ", ".join([connection.code_gen_name for connection in self._connections])
+        line = f"{self.code_gen_name} = [{input_vars}]\n"
+        return ast.parse(line)
+
+    @property
+    def code_gen_name(self) -> str:
+        return f"{self.name}_{hash(self)}"
 
 
 class RequiredMultiInput(MultiInput[_T]):
@@ -245,3 +285,10 @@ class BasicOutput(Output[_T]):
 
     def validate(self) -> None:
         pass
+
+    def generate_ast(self) -> ast.Module:
+        return ast.Module(body=[], type_ignores=[])
+
+    @property
+    def code_gen_name(self) -> str:
+        return f"{self.name}_{hash(self)}"

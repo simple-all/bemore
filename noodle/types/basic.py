@@ -1,9 +1,10 @@
+import ast
 from typing import List
 
-from noodle import BasicOutput, Connector, Node
+from noodle import BasicNode, BasicOutput, CodeGenerator, Connector
 
 
-class Int(Node):
+class Int(BasicNode, CodeGenerator):
     def __init__(self, value: int) -> None:
         super().__init__()
         self.output: BasicOutput[int] = BasicOutput(self, "output", int)
@@ -21,8 +22,12 @@ class Int(Node):
     def validate(self) -> None:
         self.output.validate()
 
+    def generate_ast(self) -> ast.Module:
+        line = f"{self.output.code_gen_name} = {self._value}\n"
+        return ast.parse(line)
 
-class Float(Node):
+
+class Float(BasicNode):
     def __init__(self, value: float) -> None:
         super().__init__()
         self.output: BasicOutput[float] = BasicOutput(self, "output", float)
@@ -40,8 +45,12 @@ class Float(Node):
     def validate(self) -> None:
         self.output.validate()
 
+    def generate_ast(self) -> ast.Module:
+        line = f"{self.output.code_gen_name} = {self._value}\n"
+        return ast.parse(line)
 
-class String(Node):
+
+class String(BasicNode):
     def __init__(self, value: str) -> None:
         super().__init__()
         self.output: BasicOutput[str] = BasicOutput(self, "output", str)
@@ -58,3 +67,7 @@ class String(Node):
 
     def validate(self) -> None:
         self.output.validate()
+
+    def generate_ast(self) -> ast.Module:
+        line = f"{self.output.code_gen_name} = {self._value}\n"
+        return ast.parse(line)

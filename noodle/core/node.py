@@ -1,11 +1,28 @@
-from abc import ABC, abstractmethod
-from typing import Iterable
+from typing import Iterable, Protocol
 
+from noodle.core.code_gen import CodeGenerator
 from noodle.core.connectors import Connector
 from noodle.core.logging import get_node_logger, get_node_runtime_logger, get_node_validation_logger
 
 
-class Node(ABC):
+class Node(CodeGenerator, Protocol):
+
+    @property
+    def name(self) -> str: ...
+
+    @name.setter
+    def name(self, name: str) -> None: ...
+
+    def run(self) -> None: ...
+
+    def get_inputs(self) -> Iterable[Connector]: ...
+
+    def get_outputs(self) -> Iterable[Connector]: ...
+
+    def validate(self) -> None: ...
+
+
+class BasicNode(Node):
 
     def __init__(self) -> None:
         self._name = type(self).__name__
@@ -20,18 +37,3 @@ class Node(ABC):
     @name.setter
     def name(self, name: str) -> None:
         self._name = name
-
-    @abstractmethod
-    def run(self) -> None: ...
-
-    @abstractmethod
-    def get_inputs(self) -> Iterable[Connector]: ...
-
-    @abstractmethod
-    def get_outputs(self) -> Iterable[Connector]: ...
-
-    @abstractmethod
-    def validate(self) -> None: ...
-
-    def __str__(self) -> str:
-        return self._name
