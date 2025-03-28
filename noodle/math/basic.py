@@ -1,12 +1,20 @@
+import ast
 import math
 from typing import Generic, List, SupportsAbs, TypeVar
 
-from noodle import BasicOutput, Connector, DynamicTypeVar, Node, RequiredInput, RequiredMultiInput
+from noodle import (
+    BasicNode,
+    BasicOutput,
+    Connector,
+    DynamicTypeVar,
+    RequiredInput,
+    RequiredMultiInput,
+)
 
 _T = TypeVar("_T")
 
 
-class Sum(Node):
+class Sum(BasicNode):
     def __init__(self) -> None:
         super().__init__()
         self.input: RequiredMultiInput[float] = RequiredMultiInput(self, "input", float)
@@ -26,8 +34,15 @@ class Sum(Node):
         self.input.validate()
         self.output.validate()
 
+    def generate_ast(self) -> ast.Module:
+        gen_module = self.input.generate_ast()
+        line = f"{self.output.code_gen_name} = sum({self.input.code_gen_name})\n"
+        body_module = ast.parse(line)
+        gen_module.body.extend(body_module.body)
+        return gen_module
 
-class Product(Node):
+
+class Product(BasicNode):
     def __init__(self) -> None:
         super().__init__()
         self.input: RequiredMultiInput[float] = RequiredMultiInput(self, "input", float)
@@ -48,8 +63,21 @@ class Product(Node):
         self.input.validate()
         self.output.validate()
 
+    def generate_ast(self) -> ast.Module:
+        imports = ast.parse("import math")
+        inputs = self.input.generate_ast()
+        lines = "\n".join(
+            [
+                "import math",
+                f"{self.output.code_gen_name} = math.prod({self.input.code_gen_name})",
+            ]
+        )
+        body = ast.parse(lines)
 
-class Subtract(Node):
+        return ast.Module(body=imports.body + inputs.body + body.body, type_ignores=[])
+
+
+class Subtract(BasicNode):
 
     def __init__(self) -> None:
         super().__init__()
@@ -76,8 +104,20 @@ class Subtract(Node):
         self.right.validate()
         self.output.validate()
 
+    def generate_ast(self) -> ast.Module:
+        line = (
+            f"{self.output.code_gen_name} = "
+            f"{self.left.code_gen_name} - {self.right.code_gen_name}\n"
+        )
+        body = ast.parse(line)
 
-class Divide(Node):
+        return ast.Module(
+            body=self.left.generate_ast().body + self.right.generate_ast().body + body.body,
+            type_ignores=[],
+        )
+
+
+class Divide(BasicNode):
 
     def __init__(self) -> None:
         super().__init__()
@@ -104,8 +144,24 @@ class Divide(Node):
         self.denominator.validate()
         self.output.validate()
 
+    def generate_ast(self) -> ast.Module:
+        line = (
+            f"{self.output.code_gen_name} = "
+            f"{self.numerator.code_gen_name} / {self.denominator.code_gen_name}\n"
+        )
+        body = ast.parse(line)
 
-class Abs(Node, Generic[_T]):
+        return ast.Module(
+            body=(
+                self.numerator.generate_ast().body
+                + self.denominator.generate_ast().body
+                + body.body
+            ),
+            type_ignores=[],
+        )
+
+
+class Abs(BasicNode, Generic[_T]):
     def __init__(self) -> None:
         super().__init__()
         _t = DynamicTypeVar()
@@ -126,8 +182,17 @@ class Abs(Node, Generic[_T]):
     def validate(self) -> None:
         self.output.validate()
 
+    def generate_ast(self) -> ast.Module:
+        line = f"{self.output.code_gen_name} = abs({self.input.code_gen_name})\n"
+        body = ast.parse(line)
 
-class Modulo(Node):
+        return ast.Module(
+            body=(self.input.generate_ast().body + body.body),
+            type_ignores=[],
+        )
+
+
+class Modulo(BasicNode):
 
     def __init__(self) -> None:
         super().__init__()
@@ -153,3 +218,15 @@ class Modulo(Node):
         self.dividend.validate()
         self.divisor.validate()
         self.output.validate()
+
+    def generate_ast(self) -> ast.Module:
+        line = (
+            f"{self.output.code_gen_name} = "
+            f"{self.dividend.code_gen_name} % {self.divisor.code_gen_name}\n"
+        )
+        body = ast.parse(line)
+
+        return ast.Module(
+            body=self.dividend.generate_ast().body + self.divisor.generate_ast().body + body.body,
+            type_ignores=[],
+        )
