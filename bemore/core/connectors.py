@@ -32,8 +32,7 @@ class Connector(CodeGenerator, Protocol):
     @property
     def node(self) -> "Node": ...
 
-    @property
-    def name(self) -> str: ...
+    name: str
 
     @property
     def signature(self) -> Any: ...
@@ -82,6 +81,10 @@ class SingleInput(Input[_T]):
     @property
     def name(self) -> str:
         return self._name
+
+    @name.setter
+    def name(self, name: str) -> None:
+        self._name = name
 
     @property
     def node(self) -> "Node":
@@ -178,6 +181,10 @@ class MultiInput(Input[_T]):
     def name(self) -> str:
         return self._name
 
+    @name.setter
+    def name(self, name: str) -> None:
+        self._name = name
+
     @property
     def node(self) -> "Node":
         return self._node
@@ -258,6 +265,10 @@ class BasicOutput(Output[_T]):
     def name(self) -> str:
         return self._name
 
+    @name.setter
+    def name(self, name: str) -> None:
+        self._name = name
+
     @property
     def node(self) -> "Node":
         return self._node
@@ -292,3 +303,130 @@ class BasicOutput(Output[_T]):
     @property
     def code_gen_name(self) -> str:
         return f"{self.name}_{hash(self)}"
+
+
+# Relays
+
+
+class InputRelay(RequiredInput[_T]):
+    def __init__(self, node: "Node", name: str, signature: Any) -> None:
+        self._node = node
+        self._name = name
+        self._signature = signature
+        self._output_relay: Optional["OutputRelay[_T]"] = None
+
+    def connect_relay(self, other: "OutputRelay[_T]") -> None:
+        self._output_relay = other
+
+
+class OutputRelay(Output[_T]):
+    def __init__(self, node: "Node", name: str, signature: Any) -> None:
+        self._node = node
+        self._name = name
+        self._signature = signature
+        self._connections: List[Connector] = []
+        self._input_relay: Optional["InputRelay[_T]"] = None
+
+    def connect(self, other: "Input[_T]") -> ConnectResult:
+        if other in self._connections:
+            return ConnectResult.ALREADY_CONNECTED
+
+        self._connections.append(other)
+        return ConnectResult.SUCCESS
+
+    def get_connections(self) -> Sequence["Connector"]:
+        return self._connections
+
+    def connect_relay(self, other: "InputRelay[_T]") -> None:
+        self._input_relay = other
+
+    def get_value(self) -> _T:
+        assert self._input_relay is not None
+        return self._input_relay.get_value()
+
+    @property
+    def node(self) -> "Node":
+        return self._node
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    @name.setter
+    def name(self, name: str) -> None:
+        self._name = name
+
+    @property
+    def signature(self) -> Any:
+        return self._signature
+
+    @property
+    def code_gen_name(self) -> str:
+        assert self._input_relay is not None
+        return self._input_relay.code_gen_name
+
+    def generate_ast(self) -> ast.Module:
+        return ast.Module(body=[], type_ignores=[])
+
+    def validate(self) -> None:
+        pass
+
+
+def connect_relays(input_relay: InputRelay[_T], output_relay: OutputRelay[_T]) -> None:
+    assert input_relay.node is output_relay.node
+    input_relay.connect_relay(output_relay)
+    output_relay.connect_relay(input_relay)
+
+
+class AccumulatingOutput(Output[List[_T]]):
+    def __init__(self, node: "Node", name: str, signature: Any):
+        self._node = node
+        self._name = name
+        self._signature = signature
+        self._value: List[_T] = []
+        self._connections: List[Input[List[_T]]] = []
+
+    def reset(self) -> None:
+        self._value = []
+
+    def accumulate(self, value: _T) -> None:
+        self._value.append(value)
+
+    def get_value(self) -> List[_T]:
+        return self._value
+
+    def connect(self, other: "Input[List[_T]]") -> ConnectResult:
+        if other in self._connections:
+            return ConnectResult.ALREADY_CONNECTED
+
+        self._connections.append(other)
+        return ConnectResult.SUCCESS
+
+    def get_connections(self) -> Sequence["Connector"]:
+        return self._connections
+
+    @property
+    def node(self) -> "Node":
+        return self._node
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    @name.setter
+    def name(self, name: str) -> None:
+        self._name = name
+
+    @property
+    def signature(self) -> Any:
+        return self._signature
+
+    @property
+    def code_gen_name(self) -> str:
+        return f"{self.name}_{hash(self)}"
+
+    def generate_ast(self) -> ast.Module:
+        return ast.Module(body=[], type_ignores=[])
+
+    def validate(self) -> None:
+        pass
