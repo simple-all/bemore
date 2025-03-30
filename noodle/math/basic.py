@@ -68,7 +68,6 @@ class Product(BasicNode):
         inputs = self.input.generate_ast()
         lines = "\n".join(
             [
-                "import math",
                 f"{self.output.code_gen_name} = math.prod({self.input.code_gen_name})",
             ]
         )

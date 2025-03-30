@@ -11,6 +11,8 @@ class System(CodeGenerator, Protocol):
     def nodes(self) -> List[Node]: ...
     def add_node(self, node: Node) -> None: ...
     def add_nodes(self, *nodes: Node) -> None: ...
+    def remove_node(self, node: Node) -> None: ...
+    def remove_nodes(self, *nodes: Node) -> None: ...
     def validate(self) -> None: ...
     def run(self) -> None: ...
 
@@ -27,9 +29,17 @@ class BasicSystem(System):
         assert node not in self._nodes
         self._nodes.append(node)
 
+    def remove_node(self, node: Node) -> None:
+        assert node in self._nodes
+        self._nodes.remove(node)
+
     def add_nodes(self, *args: Node) -> None:
         for node in args:
             self.add_node(node)
+
+    def remove_nodes(self, *nodes: Node) -> None:
+        for node in nodes:
+            self.remove_node(node)
 
     def validate(self) -> None:
         for node in self._nodes:
