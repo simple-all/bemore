@@ -2,12 +2,7 @@ import ast
 from typing import Any, Dict, Generic, Iterable, List, TypeVar
 
 from noodle import BasicNode, BasicSystem, Connector, DynamicTypeVar, RequiredInput, System
-from noodle.core.connectors import (
-    BasicOutput,
-    InputRelay,
-    OutputRelay,
-    connect_relays,
-)
+from noodle.core.connectors import BasicOutput, InputRelay, OutputRelay, connect_relays
 
 _T = TypeVar("_T")
 

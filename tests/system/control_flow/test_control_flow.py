@@ -11,7 +11,7 @@ def make_for_loop_system() -> Tuple[BasicSystem, List[float]]:
     # Inner system multiplies inputs
     inner_sys = BasicSystem()
     producter = Product()
-    appender = Append()
+    appender: Append[float] = Append()
     inner_sys.add_nodes(producter, appender)
 
     # Outer system does the looping
