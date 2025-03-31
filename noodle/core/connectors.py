@@ -109,7 +109,10 @@ class RequiredInput(SingleInput[_T]):
 
     def get_value(self) -> _T:
         if self._connection is None:
-            self._logger.error(f"Nothing connected to input '{self.name}', cannot retreive value.")
+            self._logger.error(
+                f"Nothing connected to input '{self.name}' of node {self.node.name}, "
+                "cannot retreive value."
+            )
             raise Exception()
 
         return self._connection.get_value()
@@ -225,7 +228,10 @@ class RequiredMultiInput(MultiInput[_T]):
 
     def get_value(self) -> List[_T]:
         if not self._connections:
-            self._logger.error(f"Nothing connected to input '{self.name}', cannot retreive value.")
+            self._logger.error(
+                f"Nothing connected to input '{self.name}' of node {self.node}, "
+                "cannot retreive value."
+            )
             raise Exception()
 
         return [connection.get_value() for connection in self._connections]
@@ -310,9 +316,7 @@ class BasicOutput(Output[_T]):
 
 class InputRelay(RequiredInput[_T]):
     def __init__(self, node: "Node", name: str, signature: Any) -> None:
-        self._node = node
-        self._name = name
-        self._signature = signature
+        super().__init__(node, name, signature)
         self._output_relay: Optional["OutputRelay[_T]"] = None
 
     def connect_relay(self, other: "OutputRelay[_T]") -> None:
