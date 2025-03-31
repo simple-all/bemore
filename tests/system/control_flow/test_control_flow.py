@@ -1,16 +1,17 @@
 from typing import Dict, Tuple
 
 from bemore import BasicSystem, Float, connect, generate_code
-from bemore.control_flow.basic import Accumulator, For
+from bemore.control_flow.basic import For
 from bemore.math.basic import Product
-from bemore.types.basic import ConstantList
+from bemore.types.operators import Append
+from bemore.types.basic import List
 
 
 def make_for_loop_system() -> Tuple[BasicSystem, List[float]]:
     # Inner system multiplies inputs
     inner_sys = BasicSystem()
     producter = Product()
-    appender = Append()
+    appender: Append[float] = Append()
     inner_sys.add_nodes(producter, appender)
 
     # Outer system does the looping

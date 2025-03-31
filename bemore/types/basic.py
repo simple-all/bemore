@@ -1,6 +1,7 @@
 import ast
-from typing import Generic, TypeVar, Optional
+from typing import Generic
 from typing import List as _List
+from typing import Optional, TypeVar
 
 from bemore import BasicNode, BasicOutput, CodeGenerator, Connector
 

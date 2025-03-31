@@ -1,8 +1,8 @@
-from noodle import BasicNode, RequiredInput, Connector
-from typing import Generic, TypeVar, List
-from noodle.core.connectors import InputRelay, OutputRelay, connect_relays
 import ast
+from typing import Generic, List, TypeVar
 
+from bemore import BasicNode, Connector, RequiredInput, DynamicTypeVar
+from bemore.core.connectors import InputRelay, OutputRelay, connect_relays
 
 _T = TypeVar("_T")
 
@@ -11,7 +11,7 @@ class Append(BasicNode, Generic[_T]):
     def __init__(self) -> None:
         super().__init__()
         self.list: InputRelay[List[_T]] = InputRelay(self, "list", List[_T])
-        self.value: RequiredInput[_T] = RequiredInput(self, "value", _T)
+        self.value: RequiredInput[_T] = RequiredInput(self, "value", DynamicTypeVar)
         self.output: OutputRelay[List[_T]] = OutputRelay(self, "output", List[_T])
         connect_relays(self.list, self.output)
 

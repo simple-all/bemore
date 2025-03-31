@@ -2,13 +2,7 @@ import ast
 from typing import Any, Dict, Generic, Iterable, List, TypeVar
 
 from bemore import BasicNode, BasicSystem, Connector, DynamicTypeVar, RequiredInput, System
-from bemore.core.connectors import (
-    AccumulatingOutput,
-    BasicOutput,
-    InputRelay,
-    OutputRelay,
-    connect_relays,
-)
+from bemore.core.connectors import BasicOutput, InputRelay, OutputRelay, connect_relays
 
 _T = TypeVar("_T")
 
