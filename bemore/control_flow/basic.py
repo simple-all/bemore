@@ -1,5 +1,5 @@
 import ast
-from typing import Any, Dict, Generic, Iterable, List, Sequence, TypeVar
+from typing import Any, Dict, Generic, Iterable, List, TypeVar
 
 from bemore import BasicNode, BasicSystem, Connector, DynamicTypeVar, RequiredInput, System
 from bemore.core.connectors import (
@@ -65,34 +65,6 @@ class IteratorRelay(Relay[_T]):
         return ast.Module(body=[], type_ignores=[])
 
 
-class Accumulator(BasicNode, Generic[_T]):
-    def __init__(self) -> None:
-        super().__init__()
-        _t = DynamicTypeVar()
-        self._input: RequiredInput[_T] = RequiredInput(self, "input", _t)
-        self._output: AccumulatingOutput[_T] = AccumulatingOutput(self, "output", _t)
-
-    def reset(self) -> None:
-        self._output.reset()
-
-    def run(self) -> None:
-        new_value = self._input.get_value()
-        self._output.accumulate(new_value)
-
-    def validate(self) -> None:
-        pass
-
-    def generate_ast(self) -> ast.Module:
-        line = f"{self._output.code_gen_name}.append({self._input.code_gen_name})\n"
-        return ast.parse(line)
-
-    def get_inputs(self) -> Sequence[Connector]:
-        return [self._input]
-
-    def get_outputs(self) -> Sequence[Connector]:
-        return [self._output]
-
-
 class For(BasicNode, Generic[_T]):
     def __init__(self) -> None:
         super().__init__()
@@ -101,7 +73,6 @@ class For(BasicNode, Generic[_T]):
 
         # Iteration based I/O
         self._iterator_relay: IteratorRelay[_T] = IteratorRelay()
-        self._accumulators: Dict[str, Accumulator[Any]] = {}
 
         # Passthrough I/O
         self._inputs: Dict[str, BasicRelay[Any]] = {}
@@ -119,9 +90,6 @@ class For(BasicNode, Generic[_T]):
         # Remove iteration based I/O
         self._system.remove_node(self._iterator_relay)
 
-        for accumulator_relay in self._accumulators.values():
-            self._system.remove_node(accumulator_relay)
-
         # Remove passthrough based I/O
         for input_relay in self._inputs.values():
             self._system.remove_node(input_relay)
@@ -134,7 +102,6 @@ class For(BasicNode, Generic[_T]):
 
         # Add iteration based I/O
         self._system.add_node(self._iterator_relay)
-        self._system.add_nodes(*self._accumulators.values())
         self._system.add_nodes(*self._inputs.values())
         self._system.add_nodes(*self._outputs.values())
 
@@ -151,27 +118,8 @@ class For(BasicNode, Generic[_T]):
         self._system.remove_node(self._inputs[name])
         del self._inputs[name]
 
-    def add_accumulator(self, name: str) -> Accumulator[Any]:
-        assert name not in self._accumulators, f"Accumulator with the name {name} already exists."
-        assert (
-            name not in self._outputs
-        ), f"Accumulator name {name} conflicts with an existing output."
-        new_accumulator_relay: Accumulator[Any] = Accumulator()
-        new_accumulator_relay.name = name
-        self._accumulators[name] = new_accumulator_relay
-        self._system.add_node(new_accumulator_relay)
-        return new_accumulator_relay
-
-    def remove_accumulator(self, name: str) -> None:
-        assert name in self._accumulators, f"Accumulator with the name {name} does not exist."
-        self._system.remove_node(self._accumulators[name])
-        del self._accumulators[name]
-
     def add_output(self, name: str) -> BasicRelay[Any]:
         assert name not in self._outputs, f"Output with the name {name} already exists."
-        assert (
-            name not in self._accumulators
-        ), f"Output name {name} conflicts with an existing accumulator."
         new_output: BasicRelay[Any] = BasicRelay()
         new_output.name = name
         self._outputs[name] = new_output
@@ -191,20 +139,14 @@ class For(BasicNode, Generic[_T]):
         return all_inputs
 
     def get_outputs(self) -> Iterable[Connector]:
-        accumulator_outputs: List[Connector] = [
-            accumulator_relay._output for accumulator_relay in self._accumulators.values()
-        ]
         passthrough_outputs: List[Connector] = [
             output_relay._output for output_relay in self._outputs.values()
         ]
-        return accumulator_outputs + passthrough_outputs
+        return passthrough_outputs
 
     def run(self) -> None:
         for input_relay in self._inputs.values():
             input_relay.run()
-
-        for accumulator_relay in self._accumulators.values():
-            accumulator_relay.reset()
 
         for value in self.iterator.get_value():
             self._iterator_relay.set_value(value)
@@ -221,15 +163,7 @@ class For(BasicNode, Generic[_T]):
         for output_relay in self._outputs.values():
             output_relay.validate()
 
-        for accumulator in self._accumulators.values():
-            accumulator.validate()
-
     def generate_ast(self) -> ast.Module:
-        body = []
-        for accumulator in self._accumulators.values():
-            accum_module = ast.parse(f"{accumulator._output.code_gen_name} = []")
-            body.extend(accum_module.body)
-
         for_loop = ast.For(
             iter=ast.Name(self.iterator.code_gen_name),
             target=ast.Name(self._iterator_relay._output.code_gen_name),
@@ -241,6 +175,4 @@ class For(BasicNode, Generic[_T]):
             orelse=[],
         )
 
-        body.append(for_loop)
-
-        return ast.Module(body=body, type_ignores=[])
+        return ast.Module(body=[for_loop], type_ignores=[])

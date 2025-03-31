@@ -6,45 +6,51 @@ from bemore.math.basic import Product
 from bemore.types.basic import ConstantList
 
 
-def make_for_loop_system() -> Tuple[BasicSystem, Accumulator[float]]:
+def make_for_loop_system() -> Tuple[BasicSystem, List[float]]:
     # Inner system multiplies inputs
     inner_sys = BasicSystem()
     producter = Product()
-    inner_sys.add_node(producter)
+    appender = Append()
+    inner_sys.add_nodes(producter, appender)
 
     # Outer system does the looping
     outer_sys = BasicSystem()
-    my_list = ConstantList([0.5, 1.0, 2.0, 3.0, 3.5])
+    my_list: List[float] = List()
+    my_list.value = [0.5, 1.0, 2.0, 3.0, 3.5]
+
+    new_list: List[float] = List()
     factor = Float(2.0)
     loop: For[float] = For()
-    outer_sys.add_nodes(my_list, factor, loop)
+    outer_sys.add_nodes(my_list, factor, loop, new_list)
 
     loop.system = inner_sys
     factor_relay = loop.add_input("factor")
-    accumulator_relay: Accumulator[float] = loop.add_accumulator("accumulator")
+    new_list_relay = loop.add_input("new_list")
 
     # Make all connections for the inner system
     connect(loop._iterator_relay._output, producter.input)
     connect(factor_relay._output, producter.input)
-    connect(producter.output, accumulator_relay._input)
+    connect(producter.output, appender.value)
+    connect(new_list_relay._output, appender.list)
 
     # Make all connections for the outer system
     connect(my_list.output, loop.iterator)
     connect(factor.output, factor_relay._input)
+    connect(new_list.output, new_list_relay._input)
 
-    return outer_sys, accumulator_relay
+    return outer_sys, new_list
 
 
 def test_for_loop() -> None:
 
-    system, accumulator_relay = make_for_loop_system()
+    system, new_list = make_for_loop_system()
     system.run()
 
-    assert accumulator_relay._output.get_value() == [1.0, 2.0, 4.0, 6.0, 7.0]
+    assert new_list.output.get_value() == [1.0, 2.0, 4.0, 6.0, 7.0]
 
 
 def test_for_loop_code_gen() -> None:
-    system, accumulator_relay = make_for_loop_system()
+    system, new_list = make_for_loop_system()
 
     code = generate_code(system)
 
@@ -52,4 +58,4 @@ def test_for_loop_code_gen() -> None:
     locals: Dict[str, object] = {}
     exec(code, globals, locals)
 
-    assert locals[accumulator_relay._output.code_gen_name] == [1.0, 2.0, 4.0, 6.0, 7.0]
+    assert locals[new_list.output.code_gen_name] == [1.0, 2.0, 4.0, 6.0, 7.0]
