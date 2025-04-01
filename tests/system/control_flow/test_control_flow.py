@@ -29,15 +29,15 @@ def make_for_loop_system() -> Tuple[BasicSystem, List[float]]:
     new_list_relay = loop.add_input("new_list")
 
     # Make all connections for the inner system
-    connect(loop._iterator_relay._output, producter.input)
-    connect(factor_relay._output, producter.input)
+    connect(loop._iterator_relay.output, producter.input)
+    connect(factor_relay.output, producter.input)
     connect(producter.output, appender.value)
-    connect(new_list_relay._output, appender.list)
+    connect(new_list_relay.output, appender.list)
 
     # Make all connections for the outer system
     connect(my_list.output, loop.iterator)
-    connect(factor.output, factor_relay._input)
-    connect(new_list.output, new_list_relay._input)
+    connect(factor.output, factor_relay.input)
+    connect(new_list.output, new_list_relay.input)
 
     return outer_sys, new_list
 
@@ -101,30 +101,30 @@ def make_for_if_loop_system() -> Tuple[BasicSystem, List[int], List[int]]:
     odd_list_relay = loop.add_input("odd_list")
 
     # Make all connections for the even system
-    connect(value_relay_pair.true._output, even_append.value)
-    connect(even_list_relay_pair.true._output, even_append.list)
+    connect(value_relay_pair.true.output, even_append.value)
+    connect(even_list_relay_pair.true.output, even_append.list)
 
     # Make all connections for the odd system
-    connect(value_relay_pair.false._output, odd_append.value)
-    connect(odd_list_relay_pair.false._output, odd_append.list)
+    connect(value_relay_pair.false.output, odd_append.value)
+    connect(odd_list_relay_pair.false.output, odd_append.list)
 
     # Make all connections for the if system
-    connect(loop._iterator_relay._output, mod.dividend)
-    connect(loop._iterator_relay._output, value_relay_pair.true._input)
-    connect(loop._iterator_relay._output, value_relay_pair.false._input)
+    connect(loop._iterator_relay.output, mod.dividend)
+    connect(loop._iterator_relay.output, value_relay_pair.true.input)
+    connect(loop._iterator_relay.output, value_relay_pair.false.input)
     connect(two.output, mod.divisor)
     connect(mod.output, if_node.condition)
 
-    connect(even_list_relay._output, even_list_relay_pair.true._input)
-    connect(even_list_relay._output, even_list_relay_pair.false._input)
+    connect(even_list_relay.output, even_list_relay_pair.true.input)
+    connect(even_list_relay.output, even_list_relay_pair.false.input)
 
-    connect(odd_list_relay._output, odd_list_relay_pair.true._input)
-    connect(odd_list_relay._output, odd_list_relay_pair.false._input)
+    connect(odd_list_relay.output, odd_list_relay_pair.true.input)
+    connect(odd_list_relay.output, odd_list_relay_pair.false.input)
 
     # Make all connections for the loop
     connect(all_list.output, loop.iterator)
-    connect(even_list.output, even_list_relay._input)
-    connect(odd_list.output, odd_list_relay._input)
+    connect(even_list.output, even_list_relay.input)
+    connect(odd_list.output, odd_list_relay.input)
 
     return outer_sys, even_list, odd_list
 
