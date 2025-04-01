@@ -72,7 +72,7 @@ class For(BasicNode, Generic[_T]):
         self._inputs: Dict[str, BasicRelay[Any]] = {}
         self._outputs: Dict[str, BasicRelay[Any]] = {}
 
-        self._system: System = BasicSystem()
+        self._system: System = BasicSystem("for")
         self._system.add_node(self._iterator_relay)
 
     @property
@@ -176,8 +176,8 @@ class If(BasicNode):
     def __init__(self) -> None:
         super().__init__()
         self.condition: RequiredInput[Any] = RequiredInput(self, "condition", bool)
-        self._true_system: System = BasicSystem()
-        self._false_system: System = BasicSystem()
+        self._true_system: System = BasicSystem("if true")
+        self._false_system: System = BasicSystem("if false")
         self._inputs: Dict[str, IfRelayPair[Any]] = {}
         self._outputs: Dict[str, IfRelayPair[Any]] = {}
 

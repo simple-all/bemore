@@ -18,7 +18,7 @@ def test_sum_floats() -> None:
     connect(b.output, summer.input)
     connect(c.output, summer.input)
 
-    system = BasicSystem()
+    system = BasicSystem("default")
     system.add_nodes(a, b, c, summer)
 
     system.validate()
@@ -37,7 +37,7 @@ def test_code_gen() -> None:
     connect(b.output, summer.input)
     connect(c.output, summer.input)
 
-    system = BasicSystem()
+    system = BasicSystem("default")
     system.add_nodes(a, b, c, summer)
 
     code = generate_code(system)
@@ -63,7 +63,7 @@ def test_sum_ints() -> None:
     connect(b.output, summer.input)
     connect(c.output, summer.input)
 
-    system = BasicSystem()
+    system = BasicSystem("default")
     system.add_nodes(a, b, c, summer)
 
     system.validate()
@@ -82,7 +82,7 @@ def test_product_floats() -> None:
     connect(b.output, proder.input)
     connect(c.output, proder.input)
 
-    system = BasicSystem()
+    system = BasicSystem("default")
     system.add_nodes(a, b, c, proder)
 
     system.validate()
@@ -101,7 +101,7 @@ def test_product_ints() -> None:
     connect(b.output, proder.input)
     connect(c.output, proder.input)
 
-    system = BasicSystem()
+    system = BasicSystem("default")
     system.add_nodes(a, b, c, proder)
 
     system.validate()
@@ -118,7 +118,7 @@ def test_subtract_floats() -> None:
     connect(a.output, subtracter.left)
     connect(b.output, subtracter.right)
 
-    system = BasicSystem()
+    system = BasicSystem("default")
     system.add_nodes(a, b, subtracter)
 
     system.validate()
@@ -135,7 +135,7 @@ def test_subtract_ints() -> None:
     connect(a.output, subtracter.left)
     connect(b.output, subtracter.right)
 
-    system = BasicSystem()
+    system = BasicSystem("default")
     system.add_nodes(a, b, subtracter)
 
     system.validate()
@@ -152,7 +152,7 @@ def test_divide_floats() -> None:
     connect(a.output, divider.numerator)
     connect(b.output, divider.denominator)
 
-    system = BasicSystem()
+    system = BasicSystem("default")
     system.add_nodes(a, b, divider)
 
     system.validate()
@@ -169,7 +169,7 @@ def test_divide_ints() -> None:
     connect(a.output, divider.numerator)
     connect(b.output, divider.denominator)
 
-    system = BasicSystem()
+    system = BasicSystem("default")
     system.add_nodes(a, b, divider)
 
     system.validate()
@@ -186,7 +186,7 @@ def test_modulo_floats() -> None:
     connect(a.output, moduloer.dividend)
     connect(b.output, moduloer.divisor)
 
-    system = BasicSystem()
+    system = BasicSystem("default")
     system.add_nodes(a, b, moduloer)
 
     system.validate()
@@ -203,7 +203,7 @@ def test_modulo_ints() -> None:
     connect(a.output, moduloer.dividend)
     connect(b.output, moduloer.divisor)
 
-    system = BasicSystem()
+    system = BasicSystem("default")
     system.add_nodes(a, b, moduloer)
 
     system.validate()

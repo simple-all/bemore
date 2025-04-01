@@ -8,7 +8,14 @@ from bemore import CodeGenerator, Node
 
 class System(CodeGenerator, Protocol):
     @property
+    def name(self) -> str: ...
+
+    @name.setter
+    def name(self, name: str) -> None: ...
+
+    @property
     def nodes(self) -> List[Node]: ...
+
     def add_node(self, node: Node) -> None: ...
     def add_nodes(self, *nodes: Node) -> None: ...
     def remove_node(self, node: Node) -> None: ...
@@ -18,8 +25,17 @@ class System(CodeGenerator, Protocol):
 
 
 class BasicSystem(System):
-    def __init__(self) -> None:
+    def __init__(self, name: str) -> None:
+        self._name = name
         self._nodes: List[Node] = []
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    @name.setter
+    def name(self, name: str) -> None:
+        self._name = name
 
     @property
     def nodes(self) -> List[Node]:
@@ -27,10 +43,12 @@ class BasicSystem(System):
 
     def add_node(self, node: Node) -> None:
         assert node not in self._nodes
+        node.system = self
         self._nodes.append(node)
 
     def remove_node(self, node: Node) -> None:
         assert node in self._nodes
+        node.system = None
         self._nodes.remove(node)
 
     def add_nodes(self, *args: Node) -> None:
@@ -43,6 +61,7 @@ class BasicSystem(System):
 
     def validate(self) -> None:
         for node in self._nodes:
+            assert node.system is self, f"Node {node} does not belong to this system."
             node.validate()
 
     def _construct_node_graph(self) -> nx.DiGraph:  # type: ignore
