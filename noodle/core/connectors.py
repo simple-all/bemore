@@ -57,7 +57,13 @@ class Output(Connector, Protocol[_T_co]):
     def get_value(self) -> _T_co: ...
 
 
-def connect(output: Output[_T], input: Input[_T]) -> Tuple[ConnectResult, ConnectResult]:
+def connect(
+    output: Output[_T],
+    input: Input[_T],
+    assert_same_system: bool = True,
+) -> Tuple[ConnectResult, ConnectResult]:
+    if assert_same_system and output.node.system is not input.node.system:
+        raise Exception("Connectors do not belong to the same system.")
     output_result = output.connect(input)
     input_result = input.connect(output)
 
