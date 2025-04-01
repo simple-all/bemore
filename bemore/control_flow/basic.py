@@ -16,15 +16,15 @@ class BasicRelay(Relay[_T]):
     def __init__(self) -> None:
         super().__init__()
         _t = DynamicTypeVar()
-        self._input: InputRelay[_T] = InputRelay(self, "input", _t)
-        self._output: OutputRelay[_T] = OutputRelay(self, "output", _t)
-        connect_relays(self._input, self._output)
+        self.input: InputRelay[_T] = InputRelay(self, "input", _t)
+        self.output: OutputRelay[_T] = OutputRelay(self, "output", _t)
+        connect_relays(self.input, self.output)
 
     def get_inputs(self) -> Iterable[Connector]:
-        return [self._input]
+        return [self.input]
 
     def get_outputs(self) -> Iterable[Connector]:
-        return [self._output]
+        return [self.output]
 
     def run(self) -> None:
         pass
@@ -39,10 +39,10 @@ class BasicRelay(Relay[_T]):
 class IteratorRelay(Relay[_T]):
     def __init__(self) -> None:
         BasicNode.__init__(self)
-        self._output: BasicOutput[_T] = BasicOutput(self, "output", DynamicTypeVar())
+        self.output: BasicOutput[_T] = BasicOutput(self, "output", DynamicTypeVar())
 
     def set_value(self, value: _T) -> None:
-        self._output.set_value(value)
+        self.output.set_value(value)
 
     def run(self) -> None:
         pass
@@ -51,7 +51,7 @@ class IteratorRelay(Relay[_T]):
         return []
 
     def get_outputs(self) -> Iterable[Connector]:
-        return [self._output]
+        return [self.output]
 
     def validate(self) -> None:
         pass
@@ -128,13 +128,13 @@ class For(BasicNode, Generic[_T]):
     def get_inputs(self) -> Iterable[Connector]:
         all_inputs = [self.iterator]
         for input_relay in self._inputs.values():
-            all_inputs.append(input_relay._input)
+            all_inputs.append(input_relay.input)
 
         return all_inputs
 
     def get_outputs(self) -> Iterable[Connector]:
         passthrough_outputs: List[Connector] = [
-            output_relay._output for output_relay in self._outputs.values()
+            output_relay.output for output_relay in self._outputs.values()
         ]
         return passthrough_outputs
 
@@ -154,7 +154,7 @@ class For(BasicNode, Generic[_T]):
     def generate_ast(self) -> ast.Module:
         for_loop = ast.For(
             iter=ast.Name(self.iterator.code_gen_name),
-            target=ast.Name(self._iterator_relay._output.code_gen_name),
+            target=ast.Name(self._iterator_relay.output.code_gen_name),
             body=self._system.generate_ast().body,
             col_offset=0,
             end_col_offset=None,
@@ -276,14 +276,14 @@ class If(BasicNode):
     def get_inputs(self) -> Iterable[Connector]:
         all_inputs: List[Connector] = []
         for relay_pair in self._inputs.values():
-            all_inputs.extend([relay_pair.true._input, relay_pair.false._input])
+            all_inputs.extend([relay_pair.true.input, relay_pair.false.input])
 
         return all_inputs
 
     def get_outputs(self) -> Iterable[Connector]:
         all_outputs = []
         for relay_pair in self._outputs.values():
-            all_outputs.extend([relay_pair.true._input, relay_pair.false._input])
+            all_outputs.extend([relay_pair.true.input, relay_pair.false.input])
 
         return all_outputs
 
