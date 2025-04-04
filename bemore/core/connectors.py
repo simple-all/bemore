@@ -2,16 +2,16 @@ import ast
 from enum import Enum, auto
 from typing import TYPE_CHECKING, Any, List, Optional, Protocol, Sequence, Tuple, TypeVar
 
-from noodle import CodeGenerator
-from noodle.core.logging import (
+from bemore import CodeGenerator
+from bemore.core.logging import (
     get_connector_logger,
     get_connector_runtime_logger,
     get_connector_validation_logger,
 )
-from noodle.core.type_checking import check_types
+from bemore.core.type_checking import check_types
 
 if TYPE_CHECKING:
-    from noodle.core.node import Node
+    from bemore.core.node import Node
 
 _T = TypeVar("_T")
 _T_co = TypeVar("_T_co", covariant=True)

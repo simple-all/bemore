@@ -3,7 +3,7 @@ from typing import List, Protocol
 
 import networkx as nx
 
-from noodle import CodeGenerator, Node
+from bemore import CodeGenerator, Node
 
 
 class System(CodeGenerator, Protocol):

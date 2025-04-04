@@ -1,4 +1,4 @@
-from noodle.types.basic import Float, Int, String
+from bemore.types.basic import Float, Int, String
 
 __all__ = [
     "Int",

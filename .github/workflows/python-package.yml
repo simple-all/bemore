@@ -40,14 +40,14 @@ jobs:
         pytest ./tests
     - name: Test formatting
       run: |
-        isort ./noodle
+        isort ./bemore
         isort ./tests
 
-        black ./noodle
+        black ./bemore
         black ./tests
 
         git diff --exit-code .
         exit $?
     - name: Test with mypy
       run: |
-        mypy --strict noodle tests
+        mypy --strict bemore tests

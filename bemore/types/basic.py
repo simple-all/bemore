@@ -1,7 +1,7 @@
 import ast
 from typing import List
 
-from noodle import BasicNode, BasicOutput, CodeGenerator, Connector
+from bemore import BasicNode, BasicOutput, CodeGenerator, Connector
 
 
 class Int(BasicNode, CodeGenerator):

@@ -3,8 +3,8 @@ from types import TracebackType
 from typing import TYPE_CHECKING, Mapping, Optional, Tuple, Union
 
 if TYPE_CHECKING:
-    from noodle.core.connectors import Connector
-    from noodle.core.node import Node
+    from bemore.core.connectors import Connector
+    from bemore.core.node import Node
 
     # mypy fix
     # https://github.com/python/typeshed/issues/7855

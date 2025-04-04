@@ -1,5 +1,5 @@
-from noodle.core.code_gen import CodeGenerator, generate_code
-from noodle.core.connectors import (
+from bemore.core.code_gen import CodeGenerator, generate_code
+from bemore.core.connectors import (
     BasicOutput,
     Connector,
     Input,
@@ -10,16 +10,16 @@ from noodle.core.connectors import (
     RequiredMultiInput,
     connect,
 )
-from noodle.core.node import BasicNode, Node
-from noodle.core.system import BasicSystem, System
-from noodle.core.typing import DynamicTypeVar
-from noodle.types import Float, Int, String
+from bemore.core.node import BasicNode, Node
+from bemore.core.system import BasicSystem, System
+from bemore.core.typing import DynamicTypeVar
+from bemore.types import Float, Int, String
 
 __all__ = [
-    # noodle.core.code_gen
+    # bemore.core.code_gen
     "CodeGenerator",
     "generate_code",
-    # noodle.core.connectors
+    # bemore.core.connectors
     "Connector",
     "Input",
     "OptionalInput",
@@ -29,15 +29,15 @@ __all__ = [
     "RequiredMultiInput",
     "BasicOutput",
     "connect",
-    # noodle.core.node
+    # bemore.core.node
     "BasicNode",
     "Node",
-    # noodle.core.system
+    # bemore.core.system
     "BasicSystem",
     "System",
-    # noodle.core.typing
+    # bemore.core.typing
     "DynamicTypeVar",
-    # noodle.types
+    # bemore.types
     "Float",
     "Int",
     "String",
