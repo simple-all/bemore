@@ -1,2 +1,26 @@
+[build-system]
+requires = ["setuptools >= 65.5.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "bemore"
+version = "0.0.0"
+authors = [
+    { name = "Thomas Satterly" }
+]
+description = "A node-based editor"
+readme = "README.md"
+requires-python = ">=3.9"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+license = "MIT"
+license-files = ["LICENSE"]
+
+[project.urls]
+Homepage = "https://github.com/simple-all/bemore"
+Issues = "https://github.com/simple-all/bemore/issues"
+
 [tool.black]
 line-length = 100
