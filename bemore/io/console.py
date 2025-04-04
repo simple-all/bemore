@@ -1,6 +1,6 @@
 from typing import Any, List
 
-from noodle import Connector, Node, RequiredInput
+from bemore import Connector, Node, RequiredInput
 
 
 class ConsolePrinter(Node):

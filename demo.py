@@ -1,7 +1,7 @@
-from noodle.math import Float, Sum, Printer, String, Int, Product, Indexer
-from noodle.core.system import System
-from noodle.core.connectors import connect
-from noodle.cli.logging import basic_setup
+from bemore.math import Float, Sum, Printer, String, Int, Product, Indexer
+from bemore.core.system import System
+from bemore.core.connectors import connect
+from bemore.cli.logging import basic_setup
 
 
 basic_setup()

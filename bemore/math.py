@@ -1,7 +1,7 @@
 import math
 from typing import Any, Generic, List, SupportsIndex, TypeVar
 
-from noodle.core.connectors import (
+from bemore.core.connectors import (
     BasicOutput,
     Connector,
     Input,
@@ -9,7 +9,7 @@ from noodle.core.connectors import (
     RequiredInput,
     RequiredMultiInput,
 )
-from noodle.core.node import Node
+from bemore.core.node import Node
 
 
 class MathNode(Node):

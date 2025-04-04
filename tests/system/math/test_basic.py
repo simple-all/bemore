@@ -2,8 +2,8 @@ from typing import Dict
 
 import pytest
 
-from noodle import BasicSystem, Float, Int, connect, generate_code
-from noodle.math.basic import Divide, Modulo, Product, Subtract, Sum
+from bemore import BasicSystem, Float, Int, connect, generate_code
+from bemore.math.basic import Divide, Modulo, Product, Subtract, Sum
 
 FLOAT_ABS_TOL = 1e-12
 

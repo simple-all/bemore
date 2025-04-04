@@ -1,8 +1,8 @@
 from typing import Iterable, Protocol
 
-from noodle.core.code_gen import CodeGenerator
-from noodle.core.connectors import Connector
-from noodle.core.logging import get_node_logger, get_node_runtime_logger, get_node_validation_logger
+from bemore.core.code_gen import CodeGenerator
+from bemore.core.connectors import Connector
+from bemore.core.logging import get_node_logger, get_node_runtime_logger, get_node_validation_logger
 
 
 class Node(CodeGenerator, Protocol):

@@ -1,10 +1,10 @@
-isort ./noodle
-black ./noodle
+isort ./bemore
+black ./bemore
 
 isort ./tests
 black ./tests
 
-flake8 ./noodle
+flake8 ./bemore
 result1=$?
 
 flake8 ./tests
