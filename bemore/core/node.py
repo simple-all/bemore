@@ -19,6 +19,12 @@ class Node(CodeGenerator, Protocol):
 
     def get_outputs(self) -> Iterable[Connector]: ...
 
+    def is_input(self, connector: Connector) -> bool:
+        return connector in self.get_inputs()
+
+    def is_output(self, connector: Connector) -> bool:
+        return connector in self.get_outputs()
+
     def validate(self) -> None: ...
 
 
