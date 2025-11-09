@@ -1,2 +1,48 @@
+[project]
+name = "bemore"
+version = "0.1.0"
+authors = [
+    { name = "Thomas Satterly" }
+]
+description = "A node-based editor"
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+requires-python = ">=3.11"
+dependencies = [
+    "colorama>=0.4.6",
+    "networkx>=3.5",
+]
+
+[build-system]
+requires = ["setuptools >= 65.5.0"]
+build-backend = "setuptools.build_meta"
+
+[project.urls]
+Homepage = "https://github.com/simple-all/bemore"
+Issues = "https://github.com/simple-all/bemore/issues"
+
 [tool.black]
 line-length = 100
+
+[dependency-groups]
+dev = [
+    "black>=25.9.0",
+    "flake8>=7.3.0",
+    "isort>=7.0.0",
+    "mypy>=1.18.2",
+    "pytest>=9.0.0",
+    "pytest-cov>=7.0.0",
+    "types-colorama>=0.4.15.20250801",
+    "types-networkx>=3.5.0.20251106",
+]
+
+[tool.pytest]
+addopts = ["--cov", "bemore", "--cov-report", "term-missing", "--cov-branch"]
+testpaths = [
+    "tests",
+]
+
+[tool.mypy]
+packages = ["bemore", "tests"]
+strict = true
