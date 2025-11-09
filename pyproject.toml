@@ -27,6 +27,7 @@ line-length = 100
 
 [dependency-groups]
 dev = [
+    "flake8>=7.3.0",
     "mypy>=1.18.2",
     "pytest>=9.0.0",
     "pytest-cov>=7.0.0",
@@ -42,3 +43,4 @@ testpaths = [
 
 [tool.mypy]
 packages = ["bemore", "tests"]
+strict = true
