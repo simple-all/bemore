@@ -2,3 +2,4 @@ py_3.11.4_env/*
 .DS_Store
 requirements.txt
 dist/*
+.coverage

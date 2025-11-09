@@ -4,13 +4,18 @@ from typing import Any, List
 from bemore import Connector, RequiredInput, BasicNode
 
 
-class ConsolePrinter(BasicNode):
+class Display(BasicNode):
     def __init__(self) -> None:
         super().__init__()
         self.input: RequiredInput[Any] = RequiredInput(self, "input", Any)
+        self._to_display: Any = ""
+
+    @property
+    def to_display(self) -> Any:
+        return self._to_display
 
     def run(self) -> None:
-        print(f"{self.name}: {self.input.get_value()}")
+        self._to_display = self.input.get_value()
 
     def get_inputs(self) -> List[Connector]:
         return [self.input]
@@ -22,4 +27,4 @@ class ConsolePrinter(BasicNode):
         self.input.validate()
 
     def generate_ast(self) -> ast.Module:
-        return ast.parse(f"print({self.input.code_gen_name})")
+        return ast.parse("")
