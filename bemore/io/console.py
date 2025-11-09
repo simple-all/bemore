@@ -1,7 +1,7 @@
 import ast
 from typing import Any, List
 
-from bemore import Connector, RequiredInput, BasicNode
+from bemore import BasicNode, Connector, RequiredInput
 
 
 class ConsolePrinter(BasicNode):
