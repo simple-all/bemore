@@ -1,7 +1,11 @@
 import ast
-from typing import List
+from typing import Generic
+from typing import List as _List
+from typing import Optional, TypeVar
 
 from bemore import BasicNode, BasicOutput, CodeGenerator, Connector
+
+_T = TypeVar("_T")
 
 
 class Int(BasicNode, CodeGenerator):
@@ -13,10 +17,10 @@ class Int(BasicNode, CodeGenerator):
     def run(self) -> None:
         self.output.set_value(self._value)
 
-    def get_inputs(self) -> List[Connector]:
+    def get_inputs(self) -> _List[Connector]:
         return []
 
-    def get_outputs(self) -> List[Connector]:
+    def get_outputs(self) -> _List[Connector]:
         return [self.output]
 
     def validate(self) -> None:
@@ -36,10 +40,10 @@ class Float(BasicNode):
     def run(self) -> None:
         self.output.set_value(self._value)
 
-    def get_inputs(self) -> List[Connector]:
+    def get_inputs(self) -> _List[Connector]:
         return []
 
-    def get_outputs(self) -> List[Connector]:
+    def get_outputs(self) -> _List[Connector]:
         return [self.output]
 
     def validate(self) -> None:
@@ -59,10 +63,10 @@ class String(BasicNode):
     def run(self) -> None:
         self.output.set_value(self._value)
 
-    def get_inputs(self) -> List[Connector]:
+    def get_inputs(self) -> _List[Connector]:
         return []
 
-    def get_outputs(self) -> List[Connector]:
+    def get_outputs(self) -> _List[Connector]:
         return [self.output]
 
     def validate(self) -> None:
@@ -70,4 +74,34 @@ class String(BasicNode):
 
     def generate_ast(self) -> ast.Module:
         line = f"{self.output.code_gen_name} = {self._value}\n"
+        return ast.parse(line)
+
+
+class List(BasicNode, Generic[_T]):
+    def __init__(self) -> None:
+        super().__init__()
+        self.output: BasicOutput[_List[_T]] = BasicOutput(self, "output", _List[_T])
+        self.value: Optional[_List[_T]] = None
+
+    def run(self) -> None:
+        if self.value is not None:
+            self.output.set_value(self.value)
+        else:
+            self.output.set_value([])
+
+    def get_inputs(self) -> _List[Connector]:
+        return []
+
+    def get_outputs(self) -> _List[Connector]:
+        return [self.output]
+
+    def validate(self) -> None:
+        self.output.validate()
+
+    def generate_ast(self) -> ast.Module:
+        if self.value is not None:
+            line = f"{self.output.code_gen_name} = {self.value}\n"
+        else:
+            line = f"{self.output.code_gen_name} = []\n"
+
         return ast.parse(line)
