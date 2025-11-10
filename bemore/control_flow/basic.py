@@ -64,14 +64,20 @@ class For(BasicNode, Generic[_T]):
     def __init__(self) -> None:
         super().__init__()
         self.iterator: RequiredInput[Iterable[_T]] = RequiredInput(self, "input", DynamicTypeVar())
+        """Value over which the for loop iterates."""
 
         # Iteration based I/O
         self._iterator_relay: IteratorRelay[_T] = IteratorRelay()
+        """Relay for the current value during the iteration."""
 
         # Passthrough I/O
         self._inputs: Dict[str, BasicRelay[Any]] = {}
-        self._outputs: Dict[str, BasicRelay[Any]] = {}
+        """Passthrough for input values."""
 
+        self._outputs: Dict[str, BasicRelay[Any]] = {}
+        """Passthrough for output values."""
+
+        # Initialize with a basic system
         self._system: System = BasicSystem("for")
         self._system.add_node(self._iterator_relay)
 
@@ -81,10 +87,9 @@ class For(BasicNode, Generic[_T]):
 
     @system.setter
     def system(self, system: System) -> None:
-        # Remove iteration based I/O
+        # Remove I/O nodes from old system
         self._system.remove_node(self._iterator_relay)
 
-        # Remove passthrough based I/O
         for input_relay in self._inputs.values():
             self._system.remove_node(input_relay)
 
@@ -94,7 +99,7 @@ class For(BasicNode, Generic[_T]):
         # Set the new system
         self._system = system
 
-        # Add iteration based I/O
+        # Add I/O nodes to the new system
         self._system.add_node(self._iterator_relay)
         self._system.add_nodes(*self._inputs.values())
         self._system.add_nodes(*self._outputs.values())
