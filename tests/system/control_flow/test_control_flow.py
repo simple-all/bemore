@@ -2,9 +2,9 @@ from typing import Dict, Tuple
 
 from bemore import BasicSystem, Float, connect, generate_code
 from bemore.control_flow.basic import For, If
-from bemore.math.basic import Product, Modulo
+from bemore.math.basic import Modulo, Product
+from bemore.types.basic import Int, List
 from bemore.types.operators import Append
-from bemore.types.basic import List, Int
 
 
 def make_for_loop_system() -> Tuple[BasicSystem, List[float]]:
