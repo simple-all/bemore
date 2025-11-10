@@ -5,7 +5,7 @@ from bemore.core.connectors import Connector
 from bemore.core.logging import get_node_logger, get_node_runtime_logger, get_node_validation_logger
 
 if TYPE_CHECKING:
-    from noodle.core.system import System
+    from bemore.core.system import System
 
 
 class Node(CodeGenerator, Protocol):
