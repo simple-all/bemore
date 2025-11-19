@@ -27,7 +27,7 @@ class ConnectResult(Enum):
 # Connector protocols
 
 
-class Connector(CodeGenerator, Protocol):
+class ConnectorProto(CodeGenerator, Protocol):
 
     @property
     def node(self) -> "Node": ...
@@ -41,29 +41,29 @@ class Connector(CodeGenerator, Protocol):
     def code_gen_name(self) -> str: ...
 
     def connect(self, other: Any) -> ConnectResult: ...
-    def get_connections(self) -> Sequence["Connector"]: ...
+    def get_connections(self) -> Sequence["ConnectorProto"]: ...
     def validate(self) -> None: ...
 
     def __str__(self) -> str:
         return f"{self.__module__}.{self.__class__.__name__}[{self.signature}]"
 
 
-class Input(Connector, Protocol[_T_contra]):
-    def connect(self, other: "Output[_T_contra]") -> ConnectResult: ...
+class InputConnectorProto(ConnectorProto, Protocol[_T_contra]):
+    def connect(self, other: "OutputConnectorProto[_T_contra]") -> ConnectResult: ...
 
 
-class Output(Connector, Protocol[_T_co]):
-    def connect(self, other: "Input[_T_co]") -> ConnectResult: ...
+class OutputConnectorProto(ConnectorProto, Protocol[_T_co]):
+    def connect(self, other: "InputConnectorProto[_T_co]") -> ConnectResult: ...
     def get_value(self) -> _T_co: ...
 
 
 def connect(
-    output: Output[_T],
-    input: Input[_T],
-    assert_same_system: bool = True,
+    output: OutputConnectorProto[_T],
+    input: InputConnectorProto[_T],
 ) -> Tuple[ConnectResult, ConnectResult]:
-    if assert_same_system and output.node.system is not input.node.system:
+    if output.node.system is not input.node.system:
         raise Exception("Connectors do not belong to the same system.")
+
     output_result = output.connect(input)
     input_result = input.connect(output)
 
@@ -73,12 +73,12 @@ def connect(
 # Input types
 
 
-class SingleInput(Input[_T]):
+class SingleInput(InputConnectorProto[_T]):
     def __init__(self, node: "Node", name: str, signature: Any) -> None:
         self._node = node
         self._name = name
         self._signature = signature
-        self._connection: Optional[Output[_T]] = None
+        self._connection: Optional[OutputConnectorProto[_T]] = None
 
         self._logger = get_connector_logger(self)
         self._runtime_logger = get_connector_runtime_logger(self)
@@ -100,11 +100,11 @@ class SingleInput(Input[_T]):
     def signature(self) -> Any:
         return self._signature
 
-    def connect(self, other: "Output[_T]") -> ConnectResult:
+    def connect(self, other: "OutputConnectorProto[_T]") -> ConnectResult:
         self._connection = other
         return ConnectResult.SUCCESS
 
-    def get_connections(self) -> Sequence[Connector]:
+    def get_connections(self) -> Sequence[ConnectorProto]:
         if self._connection:
             return [self._connection]
 
@@ -117,7 +117,7 @@ class RequiredInput(SingleInput[_T]):
         if self._connection is None:
             self._logger.error(
                 f"Nothing connected to input '{self.name}' of node {self.node.name}, "
-                "cannot retreive value."
+                "cannot retrieve value."
             )
             raise Exception()
 
@@ -175,12 +175,12 @@ class OptionalInput(SingleInput[_T]):
         return f"{self.name}_{hash(self)}"
 
 
-class MultiInput(Input[_T]):
+class MultiInput(InputConnectorProto[_T]):
     def __init__(self, node: "Node", name: str, signature: Any) -> None:
         self._node = node
         self._name = name
         self._signature = signature
-        self._connections: List[Output[_T]] = []
+        self._connections: List[OutputConnectorProto[_T]] = []
 
         self._logger = get_connector_logger(self)
         self._runtime_logger = get_connector_runtime_logger(self)
@@ -202,14 +202,14 @@ class MultiInput(Input[_T]):
     def signature(self) -> Any:
         return self._signature
 
-    def connect(self, other: "Output[_T]") -> ConnectResult:
+    def connect(self, other: "OutputConnectorProto[_T]") -> ConnectResult:
         if other in self._connections:
             return ConnectResult.ALREADY_CONNECTED
 
         self._connections.append(other)
         return ConnectResult.SUCCESS
 
-    def get_connections(self) -> Sequence[Connector]:
+    def get_connections(self) -> Sequence[ConnectorProto]:
         return self._connections
 
     def validate(self) -> None:
@@ -261,12 +261,12 @@ class OptionalMultiInput(MultiInput[_T]):
 NULL_VALUE_SENTINEL = object()
 
 
-class BasicOutput(Output[_T]):
+class BasicOutput(OutputConnectorProto[_T]):
     def __init__(self, node: "Node", name: str, signature: Any) -> None:
         self._node = node
         self._name = name
         self._signature = signature
-        self._connections: List[Input[_T]] = []
+        self._connections: List[InputConnectorProto[_T]] = []
         self._value: _T = NULL_VALUE_SENTINEL  # type: ignore
 
         self._logger = get_connector_logger(self)
@@ -296,14 +296,14 @@ class BasicOutput(Output[_T]):
     def set_value(self, value: _T) -> None:
         self._value = value
 
-    def connect(self, other: "Input[_T]") -> ConnectResult:
+    def connect(self, other: "InputConnectorProto[_T]") -> ConnectResult:
         if other in self._connections:
             return ConnectResult.ALREADY_CONNECTED
 
         self._connections.append(other)
         return ConnectResult.SUCCESS
 
-    def get_connections(self) -> Sequence[Connector]:
+    def get_connections(self) -> Sequence[ConnectorProto]:
         return self._connections
 
     def validate(self) -> None:
@@ -315,74 +315,3 @@ class BasicOutput(Output[_T]):
     @property
     def code_gen_name(self) -> str:
         return f"{self.name}_{hash(self)}"
-
-
-# Relays
-
-
-class InputRelay(RequiredInput[_T]):
-    def __init__(self, node: "Node", name: str, signature: Any) -> None:
-        super().__init__(node, name, signature)
-        self._output_relay: Optional["OutputRelay[_T]"] = None
-
-    def connect_relay(self, other: "OutputRelay[_T]") -> None:
-        self._output_relay = other
-
-
-class OutputRelay(Output[_T]):
-    def __init__(self, node: "Node", name: str, signature: Any) -> None:
-        self._node = node
-        self._name = name
-        self._signature = signature
-        self._connections: List[Connector] = []
-        self._input_relay: Optional["InputRelay[_T]"] = None
-
-    def connect(self, other: "Input[_T]") -> ConnectResult:
-        if other in self._connections:
-            return ConnectResult.ALREADY_CONNECTED
-
-        self._connections.append(other)
-        return ConnectResult.SUCCESS
-
-    def get_connections(self) -> Sequence["Connector"]:
-        return self._connections
-
-    def connect_relay(self, other: "InputRelay[_T]") -> None:
-        self._input_relay = other
-
-    def get_value(self) -> _T:
-        assert self._input_relay is not None
-        return self._input_relay.get_value()
-
-    @property
-    def node(self) -> "Node":
-        return self._node
-
-    @property
-    def name(self) -> str:
-        return self._name
-
-    @name.setter
-    def name(self, name: str) -> None:
-        self._name = name
-
-    @property
-    def signature(self) -> Any:
-        return self._signature
-
-    @property
-    def code_gen_name(self) -> str:
-        assert self._input_relay is not None
-        return self._input_relay.code_gen_name
-
-    def generate_ast(self) -> ast.Module:
-        return ast.Module(body=[], type_ignores=[])
-
-    def validate(self) -> None:
-        pass
-
-
-def connect_relays(input_relay: InputRelay[_T], output_relay: OutputRelay[_T]) -> None:
-    assert input_relay.node is output_relay.node
-    input_relay.connect_relay(output_relay)
-    output_relay.connect_relay(input_relay)

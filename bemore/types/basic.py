@@ -3,7 +3,7 @@ from typing import Generic
 from typing import List as _List
 from typing import Optional, TypeVar
 
-from bemore import BasicNode, BasicOutput, CodeGenerator, Connector
+from bemore import BasicNode, BasicOutput, CodeGenerator, ConnectorProto
 
 _T = TypeVar("_T")
 
@@ -17,10 +17,10 @@ class Int(BasicNode, CodeGenerator):
     def run(self) -> None:
         self.output.set_value(self._value)
 
-    def get_inputs(self) -> _List[Connector]:
+    def get_inputs(self) -> _List[ConnectorProto]:
         return []
 
-    def get_outputs(self) -> _List[Connector]:
+    def get_outputs(self) -> _List[ConnectorProto]:
         return [self.output]
 
     def validate(self) -> None:
@@ -40,10 +40,10 @@ class Float(BasicNode):
     def run(self) -> None:
         self.output.set_value(self._value)
 
-    def get_inputs(self) -> _List[Connector]:
+    def get_inputs(self) -> _List[ConnectorProto]:
         return []
 
-    def get_outputs(self) -> _List[Connector]:
+    def get_outputs(self) -> _List[ConnectorProto]:
         return [self.output]
 
     def validate(self) -> None:
@@ -63,10 +63,10 @@ class String(BasicNode):
     def run(self) -> None:
         self.output.set_value(self._value)
 
-    def get_inputs(self) -> _List[Connector]:
+    def get_inputs(self) -> _List[ConnectorProto]:
         return []
 
-    def get_outputs(self) -> _List[Connector]:
+    def get_outputs(self) -> _List[ConnectorProto]:
         return [self.output]
 
     def validate(self) -> None:
@@ -89,10 +89,10 @@ class List(BasicNode, Generic[_T]):
         else:
             self.output.set_value([])
 
-    def get_inputs(self) -> _List[Connector]:
+    def get_inputs(self) -> _List[ConnectorProto]:
         return []
 
-    def get_outputs(self) -> _List[Connector]:
+    def get_outputs(self) -> _List[ConnectorProto]:
         return [self.output]
 
     def validate(self) -> None:

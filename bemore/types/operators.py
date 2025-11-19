@@ -1,19 +1,16 @@
 import ast
 from typing import Generic, List, TypeVar
 
-from bemore import BasicNode, Connector, DynamicTypeVar, RequiredInput
-from bemore.core.connectors import InputRelay, OutputRelay, connect_relays
-
+from bemore import BasicNode, ConnectorProto, DynamicTypeVar, RequiredInput, BasicOutput
 _T = TypeVar("_T")
 
 
 class Append(BasicNode, Generic[_T]):
     def __init__(self) -> None:
         super().__init__()
-        self.list: InputRelay[List[_T]] = InputRelay(self, "list", List[_T])
+        self.list: RequiredInput[List[_T]] = RequiredInput(self, "list", List[_T])
         self.value: RequiredInput[_T] = RequiredInput(self, "value", DynamicTypeVar)
-        self.output: OutputRelay[List[_T]] = OutputRelay(self, "output", List[_T])
-        connect_relays(self.list, self.output)
+        self.output: BasicOutput[List[_T]] = BasicOutput(self, "output", List[_T])
 
     def run(self) -> None:
         input_list = self.list.get_value()
@@ -22,10 +19,10 @@ class Append(BasicNode, Generic[_T]):
 
         # Output is a relay, don't need to set its value.
 
-    def get_inputs(self) -> List[Connector]:
+    def get_inputs(self) -> List[ConnectorProto]:
         return [self.list, self.value]
 
-    def get_outputs(self) -> List[Connector]:
+    def get_outputs(self) -> List[ConnectorProto]:
         return [self.output]
 
     def validate(self) -> None:

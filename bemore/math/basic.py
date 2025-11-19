@@ -5,7 +5,7 @@ from typing import Generic, List, SupportsAbs, TypeVar
 from bemore import (
     BasicNode,
     BasicOutput,
-    Connector,
+    ConnectorProto,
     DynamicTypeVar,
     RequiredInput,
     RequiredMultiInput,
@@ -24,10 +24,10 @@ class Sum(BasicNode):
         in_value = self.input.get_value()
         self.output.set_value(sum(in_value))
 
-    def get_inputs(self) -> List[Connector]:
+    def get_inputs(self) -> List[ConnectorProto]:
         return [self.input]
 
-    def get_outputs(self) -> List[Connector]:
+    def get_outputs(self) -> List[ConnectorProto]:
         return [self.output]
 
     def validate(self) -> None:
@@ -53,10 +53,10 @@ class Product(BasicNode):
 
         self.output.set_value(value)
 
-    def get_inputs(self) -> List[Connector]:
+    def get_inputs(self) -> List[ConnectorProto]:
         return [self.input]
 
-    def get_outputs(self) -> List[Connector]:
+    def get_outputs(self) -> List[ConnectorProto]:
         return [self.output]
 
     def validate(self) -> None:
@@ -92,10 +92,10 @@ class Subtract(BasicNode):
 
         self.output.set_value(result)
 
-    def get_inputs(self) -> List[Connector]:
+    def get_inputs(self) -> List[ConnectorProto]:
         return [self.left, self.right]
 
-    def get_outputs(self) -> List[Connector]:
+    def get_outputs(self) -> List[ConnectorProto]:
         return [self.output]
 
     def validate(self) -> None:
@@ -132,10 +132,10 @@ class Divide(BasicNode):
 
         self.output.set_value(result)
 
-    def get_inputs(self) -> List[Connector]:
+    def get_inputs(self) -> List[ConnectorProto]:
         return [self.numerator, self.denominator]
 
-    def get_outputs(self) -> List[Connector]:
+    def get_outputs(self) -> List[ConnectorProto]:
         return [self.output]
 
     def validate(self) -> None:
@@ -172,10 +172,10 @@ class Abs(BasicNode, Generic[_T]):
         abs_val = abs(input_value)
         self.output.set_value(abs_val)
 
-    def get_inputs(self) -> List[Connector]:
+    def get_inputs(self) -> List[ConnectorProto]:
         return [self.input]
 
-    def get_outputs(self) -> List[Connector]:
+    def get_outputs(self) -> List[ConnectorProto]:
         return [self.output]
 
     def validate(self) -> None:
@@ -207,10 +207,10 @@ class Modulo(BasicNode):
 
         self.output.set_value(result)
 
-    def get_inputs(self) -> List[Connector]:
+    def get_inputs(self) -> List[ConnectorProto]:
         return [self.dividend, self.divisor]
 
-    def get_outputs(self) -> List[Connector]:
+    def get_outputs(self) -> List[ConnectorProto]:
         return [self.output]
 
     def validate(self) -> None:

@@ -3,7 +3,7 @@ from types import TracebackType
 from typing import TYPE_CHECKING, Mapping, Optional, Tuple, Union
 
 if TYPE_CHECKING:
-    from bemore.core.connectors import Connector
+    from bemore.core.connectors import ConnectorProto
     from bemore.core.node import Node
 
     # mypy fix
@@ -23,7 +23,7 @@ def _get_qualified_node_name(node: "Node") -> str:
     return f"{qualified_name}.{hash(node)}_{node.name}"
 
 
-def _get_qualified_connector_name(connector: "Connector") -> str:
+def _get_qualified_connector_name(connector: "ConnectorProto") -> str:
     assert hasattr(connector, "node"), f"Connector {connector} does not have an assigned node."
     assert hasattr(connector, "name"), f"Connector {connector} does not have an assigned name."
     node_name = _get_qualified_node_name(connector.node)
@@ -69,7 +69,7 @@ class NodeLogger(_LoggerAdapter):
 
 
 class ConnectorLogger(_LoggerAdapter):
-    def __init__(self, logger: logging.Logger, connector: "Connector") -> None:
+    def __init__(self, logger: logging.Logger, connector: "ConnectorProto") -> None:
         super().__init__(logger, extra={})
         self._connector = connector
 
@@ -105,7 +105,7 @@ def get_node_logger(node: "Node") -> NodeLogger:
     return NodeLogger(logger, node)
 
 
-def get_connector_logger(connector: "Connector") -> ConnectorLogger:
+def get_connector_logger(connector: "ConnectorProto") -> ConnectorLogger:
     qualified_name = _get_qualified_connector_name(connector)
     logger = logging.getLogger(qualified_name)
     return ConnectorLogger(logger, connector)
@@ -119,7 +119,7 @@ def get_node_runtime_logger(node: "Node") -> NodeLogger:
     return NodeLogger(logger, node)
 
 
-def get_connector_runtime_logger(connector: "Connector") -> ConnectorLogger:
+def get_connector_runtime_logger(connector: "ConnectorProto") -> ConnectorLogger:
     qualified_name = _get_qualified_connector_name(connector)
     logger_name = f"{qualified_name}.runtime"
     logger = logging.getLogger(logger_name)
@@ -134,7 +134,7 @@ def get_node_validation_logger(node: "Node") -> NodeLogger:
     return NodeLogger(logger, node)
 
 
-def get_connector_validation_logger(connector: "Connector") -> ConnectorLogger:
+def get_connector_validation_logger(connector: "ConnectorProto") -> ConnectorLogger:
     qualified_name = _get_qualified_connector_name(connector)
     logger_name = f"{qualified_name}.validation"
     logger = logging.getLogger(logger_name)

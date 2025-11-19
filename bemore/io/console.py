@@ -1,7 +1,7 @@
 import ast
 from typing import Any, List
 
-from bemore import BasicNode, Connector, RequiredInput
+from bemore import BasicNode, ConnectorProto, RequiredInput
 
 
 class ConsolePrinter(BasicNode):
@@ -12,10 +12,10 @@ class ConsolePrinter(BasicNode):
     def run(self) -> None:
         print(f"{self.name}: {self.input.get_value()}")
 
-    def get_inputs(self) -> List[Connector]:
+    def get_inputs(self) -> List[ConnectorProto]:
         return [self.input]
 
-    def get_outputs(self) -> List[Connector]:
+    def get_outputs(self) -> List[ConnectorProto]:
         return []
 
     def validate(self) -> None:

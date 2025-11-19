@@ -1,17 +1,17 @@
 from bemore.core.code_gen import CodeGenerator, generate_code
 from bemore.core.connectors import (
     BasicOutput,
-    Connector,
-    Input,
+    ConnectorProto,
+    InputConnectorProto,
     OptionalInput,
     OptionalMultiInput,
-    Output,
+    OutputConnectorProto,
     RequiredInput,
     RequiredMultiInput,
     connect,
 )
 from bemore.core.node import BasicNode, Node
-from bemore.core.system import BasicSystem, System
+from bemore.core.system import BasicSystem, SystemProto
 from bemore.core.typing import DynamicTypeVar
 from bemore.types import Float, Int, String
 
@@ -20,11 +20,11 @@ __all__ = [
     "CodeGenerator",
     "generate_code",
     # bemore.core.connectors
-    "Connector",
-    "Input",
+    "ConnectorProto",
+    "InputConnectorProto",
     "OptionalInput",
     "OptionalMultiInput",
-    "Output",
+    "OutputConnectorProto",
     "RequiredInput",
     "RequiredMultiInput",
     "BasicOutput",
@@ -34,7 +34,7 @@ __all__ = [
     "Node",
     # bemore.core.system
     "BasicSystem",
-    "System",
+    "SystemProto",
     # bemore.core.typing
     "DynamicTypeVar",
     # bemore.types

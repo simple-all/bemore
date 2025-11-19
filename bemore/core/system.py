@@ -1,12 +1,29 @@
 import ast
-from typing import List, Protocol
+from typing import List, Protocol, Iterable, runtime_checkable, Dict, Any
 
 import networkx as nx
 
 from bemore import CodeGenerator, Node
 
 
-class System(CodeGenerator, Protocol):
+@runtime_checkable
+class InputProto[_T](Node, Protocol):
+
+    @property
+    def is_required(self) -> bool:
+        raise NotImplementedError
+
+    def set_value(self, value: _T) -> None:
+        raise NotImplementedError()
+
+
+@runtime_checkable
+class OutputProto[_T](Node, Protocol):
+    def get_value(self) -> _T:
+        raise NotImplementedError()
+
+
+class SystemProto(CodeGenerator, Protocol):
     @property
     def name(self) -> str: ...
 
@@ -18,13 +35,15 @@ class System(CodeGenerator, Protocol):
 
     def add_node(self, node: Node) -> None: ...
     def add_nodes(self, *nodes: Node) -> None: ...
+    def get_inputs(self) -> Iterable[InputProto]: ...
+    def get_outputs(self) -> Iterable[OutputProto]: ...
     def remove_node(self, node: Node) -> None: ...
     def remove_nodes(self, *nodes: Node) -> None: ...
     def validate(self) -> None: ...
-    def run(self) -> None: ...
+    def run(self, **kwargs) -> None: ...
 
 
-class BasicSystem(System):
+class BasicSystem(SystemProto):
     def __init__(self, name: str) -> None:
         self._name = name
         self._nodes: List[Node] = []
@@ -59,6 +78,16 @@ class BasicSystem(System):
         for node in nodes:
             self.remove_node(node)
 
+    def get_inputs(self) -> Iterable[InputProto]:
+        for node in self._nodes:
+            if isinstance(node, InputProto):
+                yield node
+
+    def get_outputs(self) -> Iterable[OutputProto]:
+        for node in self._nodes:
+            if isinstance(node, OutputProto):
+                yield node
+
     def validate(self) -> None:
         for node in self._nodes:
             assert node.system is self, f"Node {node} does not belong to this system."
@@ -82,14 +111,31 @@ class BasicSystem(System):
 
         return graph
 
-    def run(self) -> None:
+    def run(self, **kwargs) -> Dict[str, Any]:
         graph = self._construct_node_graph()
 
         cycles = list(nx.simple_cycles(graph))
         assert not cycles
 
+        input_map = {node.name: node for node in self.get_inputs()}
+
+        required_names = set(name for name, node in input_map.items() if node.is_required)
+        given_names = set(kwargs.keys())
+
+        missing_inputs = required_names.difference(given_names)
+
+        if missing_inputs:
+            raise Exception(f"Missing inputs: {missing_inputs}.")
+
+        for name, node in input_map.items():
+            node.set_value(kwargs.get(name))
+
         for node in nx.topological_sort(graph):
             node.run()
+
+        outputs = {node.name: node.get_value for node in self.get_outputs()}
+
+        return outputs
 
     def generate_ast(self) -> ast.Module:
         graph = self._construct_node_graph()
