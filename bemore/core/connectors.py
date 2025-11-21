@@ -2,7 +2,7 @@ import ast
 from enum import Enum, auto
 from typing import TYPE_CHECKING, Any, List, Optional, Protocol, Sequence, Tuple, TypeVar
 
-from bemore import CodeGenerator
+from bemore.core.code_gen import CodeGeneratorProto
 from bemore.core.logging import (
     get_connector_logger,
     get_connector_runtime_logger,
@@ -11,7 +11,7 @@ from bemore.core.logging import (
 from bemore.core.type_checking import check_types
 
 if TYPE_CHECKING:
-    from bemore.core.node import Node
+    from bemore.core.node import NodeProto
 
 _T = TypeVar("_T")
 _T_co = TypeVar("_T_co", covariant=True)
@@ -27,10 +27,10 @@ class ConnectResult(Enum):
 # Connector protocols
 
 
-class ConnectorProto(CodeGenerator, Protocol):
+class ConnectorProto(CodeGeneratorProto, Protocol):
 
     @property
-    def node(self) -> "Node": ...
+    def node(self) -> "NodeProto": ...
 
     name: str
 
@@ -85,7 +85,7 @@ def connect(
 
 
 class SingleInput(InputConnectorProto[_T]):
-    def __init__(self, node: "Node", name: str, signature: Any) -> None:
+    def __init__(self, node: "NodeProto", name: str, signature: Any) -> None:
         self._node = node
         self._name = name
         self._signature = signature
@@ -104,7 +104,7 @@ class SingleInput(InputConnectorProto[_T]):
         self._name = name
 
     @property
-    def node(self) -> "Node":
+    def node(self) -> "NodeProto":
         return self._node
 
     @property
@@ -187,7 +187,7 @@ class OptionalInput(SingleInput[_T]):
 
 
 class MultiInput(InputConnectorProto[_T]):
-    def __init__(self, node: "Node", name: str, signature: Any) -> None:
+    def __init__(self, node: "NodeProto", name: str, signature: Any) -> None:
         self._node = node
         self._name = name
         self._signature = signature
@@ -206,7 +206,7 @@ class MultiInput(InputConnectorProto[_T]):
         self._name = name
 
     @property
-    def node(self) -> "Node":
+    def node(self) -> "NodeProto":
         return self._node
 
     @property
@@ -273,7 +273,7 @@ NULL_VALUE_SENTINEL = object()
 
 
 class BasicOutput(OutputConnectorProto[_T]):
-    def __init__(self, node: "Node", name: str, signature: Any) -> None:
+    def __init__(self, node: "NodeProto", name: str, signature: Any) -> None:
         self._node = node
         self._name = name
         self._signature = signature
@@ -293,7 +293,7 @@ class BasicOutput(OutputConnectorProto[_T]):
         self._name = name
 
     @property
-    def node(self) -> "Node":
+    def node(self) -> "NodeProto":
         return self._node
 
     @property

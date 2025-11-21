@@ -1,7 +1,7 @@
 from collections.abc import Collection
 from typing import TYPE_CHECKING, Any, Optional, Protocol
 
-from bemore.core.code_gen import CodeGenerator
+from bemore.core.code_gen import CodeGeneratorProto
 from bemore.core.connectors import ConnectorProto, InputConnectorProto, OutputConnectorProto
 from bemore.core.logging import get_node_logger, get_node_runtime_logger, get_node_validation_logger
 
@@ -9,7 +9,7 @@ if TYPE_CHECKING:
     from bemore.core.system import SystemProto
 
 
-class Node(CodeGenerator, Protocol):
+class NodeProto(CodeGeneratorProto, Protocol):
 
     @property
     def name(self) -> str:
@@ -46,7 +46,7 @@ class Node(CodeGenerator, Protocol):
         raise NotImplementedError()
 
 
-class BasicNode(Node):
+class BasicNode(NodeProto):
 
     def __init__(self) -> None:
         self._name = type(self).__name__

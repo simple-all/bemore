@@ -4,10 +4,16 @@ from typing import Any
 from typing import List as _List
 from typing import Optional
 
-from bemore import BasicNode, BasicOutput, CodeGenerator, InputConnectorProto, OutputConnectorProto
+from bemore import (
+    BasicNode,
+    BasicOutput,
+    CodeGeneratorProto,
+    InputConnectorProto,
+    OutputConnectorProto,
+)
 
 
-class Int(BasicNode, CodeGenerator):
+class Int(BasicNode, CodeGeneratorProto):
     def __init__(self, value: int) -> None:
         super().__init__()
         self.output: BasicOutput[int] = BasicOutput(self, "output", int)

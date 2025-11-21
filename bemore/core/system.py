@@ -3,14 +3,15 @@ from typing import Any, Dict, Iterable, List, Protocol, TypeVar, runtime_checkab
 
 import networkx as nx
 
-from bemore import CodeGenerator, Node
+from bemore.core.code_gen import CodeGeneratorProto
+from bemore.core.node import NodeProto
 
 _T_co = TypeVar("_T_co", covariant=True)
 _T_contra = TypeVar("_T_contra", contravariant=True)
 
 
 @runtime_checkable
-class InputProto(Node, Protocol[_T_contra]):
+class InputProto(NodeProto, Protocol[_T_contra]):
 
     @property
     def is_required(self) -> bool:
@@ -21,12 +22,12 @@ class InputProto(Node, Protocol[_T_contra]):
 
 
 @runtime_checkable
-class OutputProto(Node, Protocol[_T_co]):
+class OutputProto(NodeProto, Protocol[_T_co]):
     def get_value(self) -> _T_co:
         raise NotImplementedError()
 
 
-class SystemProto(CodeGenerator, Protocol):
+class SystemProto(CodeGeneratorProto, Protocol):
     @property
     def name(self) -> str: ...
 
@@ -34,14 +35,14 @@ class SystemProto(CodeGenerator, Protocol):
     def name(self, name: str) -> None: ...
 
     @property
-    def nodes(self) -> List[Node]: ...
+    def nodes(self) -> List[NodeProto]: ...
 
-    def add_node(self, node: Node) -> None: ...
-    def add_nodes(self, *nodes: Node) -> None: ...
+    def add_node(self, node: NodeProto) -> None: ...
+    def add_nodes(self, *nodes: NodeProto) -> None: ...
     def get_inputs(self) -> Iterable[InputProto[Any]]: ...
     def get_outputs(self) -> Iterable[OutputProto[Any]]: ...
-    def remove_node(self, node: Node) -> None: ...
-    def remove_nodes(self, *nodes: Node) -> None: ...
+    def remove_node(self, node: NodeProto) -> None: ...
+    def remove_nodes(self, *nodes: NodeProto) -> None: ...
     def validate(self) -> None: ...
     def run(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]: ...
 
@@ -49,7 +50,7 @@ class SystemProto(CodeGenerator, Protocol):
 class BasicSystem(SystemProto):
     def __init__(self, name: str) -> None:
         self._name = name
-        self._nodes: List[Node] = []
+        self._nodes: List[NodeProto] = []
 
     @property
     def name(self) -> str:
@@ -60,24 +61,24 @@ class BasicSystem(SystemProto):
         self._name = name
 
     @property
-    def nodes(self) -> List[Node]:
+    def nodes(self) -> List[NodeProto]:
         return self._nodes
 
-    def add_node(self, node: Node) -> None:
+    def add_node(self, node: NodeProto) -> None:
         assert node not in self._nodes
         node.system = self
         self._nodes.append(node)
 
-    def remove_node(self, node: Node) -> None:
+    def remove_node(self, node: NodeProto) -> None:
         assert node in self._nodes
         node.system = None
         self._nodes.remove(node)
 
-    def add_nodes(self, *args: Node) -> None:
+    def add_nodes(self, *args: NodeProto) -> None:
         for node in args:
             self.add_node(node)
 
-    def remove_nodes(self, *nodes: Node) -> None:
+    def remove_nodes(self, *nodes: NodeProto) -> None:
         for node in nodes:
             self.remove_node(node)
 
@@ -148,7 +149,7 @@ class BasicSystem(SystemProto):
 
         gen_module = ast.Module(body=[], type_ignores=[])
 
-        next_node: Node
+        next_node: NodeProto
         for next_node in nx.topological_sort(graph):
             node_ast = next_node.generate_ast()
             gen_module.body.extend(node_ast.body)
