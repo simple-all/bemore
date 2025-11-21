@@ -14,7 +14,7 @@ _T_contra = TypeVar("_T_contra", contravariant=True)
 @runtime_checkable
 class InputProto(NodeProto, Protocol[_T_contra]):
 
-    output: OutputConnectorProto
+    output: OutputConnectorProto[Any]
 
     @property
     def is_required(self) -> bool:

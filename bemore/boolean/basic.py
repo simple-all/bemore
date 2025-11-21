@@ -2,10 +2,10 @@ from collections.abc import Collection
 from typing import Any as _Any
 from typing import Iterable, List
 
-from bemore import BasicOutput, InputConnectorProto, Node, OutputConnectorProto, RequiredInput
+from bemore import BasicOutput, InputConnectorProto, NodeProto, OutputConnectorProto, RequiredInput
 
 
-class All(Node):
+class All(NodeProto):
     def __init__(self) -> None:
         super().__init__()
         self.input: RequiredInput[Iterable[_Any]] = RequiredInput(self, "input", Iterable[Any])
@@ -31,7 +31,7 @@ b: float = 3.5
 c = b in a
 
 
-class Any(Node):
+class Any(NodeProto):
     def __init__(self) -> None:
         super().__init__()
         self.input: RequiredInput[Iterable[_Any]] = RequiredInput(self, "input", Iterable)
