@@ -14,12 +14,14 @@ _T_contra = TypeVar("_T_contra", contravariant=True)
 @runtime_checkable
 class InputProto(NodeProto, Protocol[_T_contra]):
 
+    output: OutputConnectorProto
+
     @property
     def is_required(self) -> bool:
         raise NotImplementedError
 
-    @property
-    def output(self) -> OutputConnectorProto: ...
+    # @property
+    # def output(self) -> OutputConnectorProto: ...
 
     def set_value(self, value: _T_contra) -> None:
         raise NotImplementedError()
@@ -157,5 +159,16 @@ class BasicSystem(SystemProto):
         for next_node in nx.topological_sort(graph):
             node_ast = next_node.generate_ast()
             gen_module.body.extend(node_ast.body)
+
+        # Surface imports to the top
+        imports = []
+        for node in ast.walk(gen_module):
+            if isinstance(node, ast.Import):
+                imports.append(node)
+
+        gen_module = ast.Module(
+            body=imports + gen_module.body,
+            type_ignores=gen_module.type_ignores,
+        )
 
         return gen_module

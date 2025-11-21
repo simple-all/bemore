@@ -64,7 +64,7 @@ class Product(BasicNode):
         self.output.validate()
 
     def generate_ast(self) -> ast.Module:
-        imports = ast.parse("import math")
+        import_math = ast.Import([ast.alias("math")])
         inputs = self.input.generate_ast()
         lines = "\n".join(
             [
@@ -73,7 +73,7 @@ class Product(BasicNode):
         )
         body = ast.parse(lines)
 
-        return ast.Module(body=imports.body + inputs.body + body.body, type_ignores=[])
+        return ast.Module(body=[import_math] + inputs.body + body.body, type_ignores=[])
 
 
 class Subtract(BasicNode):
