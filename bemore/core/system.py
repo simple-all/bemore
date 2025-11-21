@@ -1,25 +1,29 @@
 import ast
-from typing import List, Protocol, Iterable, runtime_checkable, Dict, Any
+from typing import List, Protocol, Iterable, runtime_checkable, Dict, Any, TypeVar
 
 import networkx as nx
 
 from bemore import CodeGenerator, Node
 
 
+_T_co = TypeVar("_T_co", covariant=True)
+_T_contra = TypeVar("_T_contra", contravariant=True)
+
+
 @runtime_checkable
-class InputProto[_T](Node, Protocol):
+class InputProto(Node, Protocol[_T_contra]):
 
     @property
     def is_required(self) -> bool:
         raise NotImplementedError
 
-    def set_value(self, value: _T) -> None:
+    def set_value(self, value: _T_contra) -> None:
         raise NotImplementedError()
 
 
 @runtime_checkable
-class OutputProto[_T](Node, Protocol):
-    def get_value(self) -> _T:
+class OutputProto(Node, Protocol[_T_co]):
+    def get_value(self) -> _T_co:
         raise NotImplementedError()
 
 
@@ -35,12 +39,12 @@ class SystemProto(CodeGenerator, Protocol):
 
     def add_node(self, node: Node) -> None: ...
     def add_nodes(self, *nodes: Node) -> None: ...
-    def get_inputs(self) -> Iterable[InputProto]: ...
-    def get_outputs(self) -> Iterable[OutputProto]: ...
+    def get_inputs(self) -> Iterable[InputProto[Any]]: ...
+    def get_outputs(self) -> Iterable[OutputProto[Any]]: ...
     def remove_node(self, node: Node) -> None: ...
     def remove_nodes(self, *nodes: Node) -> None: ...
     def validate(self) -> None: ...
-    def run(self, **kwargs) -> None: ...
+    def run(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]: ...
 
 
 class BasicSystem(SystemProto):
@@ -78,12 +82,12 @@ class BasicSystem(SystemProto):
         for node in nodes:
             self.remove_node(node)
 
-    def get_inputs(self) -> Iterable[InputProto]:
+    def get_inputs(self) -> Iterable[InputProto[Any]]:
         for node in self._nodes:
             if isinstance(node, InputProto):
                 yield node
 
-    def get_outputs(self) -> Iterable[OutputProto]:
+    def get_outputs(self) -> Iterable[OutputProto[Any]]:
         for node in self._nodes:
             if isinstance(node, OutputProto):
                 yield node
@@ -111,7 +115,7 @@ class BasicSystem(SystemProto):
 
         return graph
 
-    def run(self, **kwargs) -> Dict[str, Any]:
+    def run(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
         graph = self._construct_node_graph()
 
         cycles = list(nx.simple_cycles(graph))

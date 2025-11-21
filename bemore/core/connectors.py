@@ -50,10 +50,21 @@ class ConnectorProto(CodeGenerator, Protocol):
 
 class InputConnectorProto(ConnectorProto, Protocol[_T_contra]):
     def connect(self, other: "OutputConnectorProto[_T_contra]") -> ConnectResult: ...
+    def get_value(self) -> Any: ...
+
+
+class RequiredInputConnectorProto[_T](InputConnectorProto[_T]):
+    def get_value(self) -> _T:
+        raise NotImplementedError()
+
+
+class OptionalConnectorProto[_T](InputConnectorProto[_T]):
+    def get_value(self) -> Optional[_T]: ...
 
 
 class OutputConnectorProto(ConnectorProto, Protocol[_T_co]):
     def connect(self, other: "InputConnectorProto[_T_co]") -> ConnectResult: ...
+    def set_value(self, value: Any) -> None: ...
     def get_value(self) -> _T_co: ...
 
 

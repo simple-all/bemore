@@ -1,17 +1,17 @@
 import ast
 import math
-from typing import Generic, List, SupportsAbs, TypeVar
+from typing import SupportsAbs
+from collections.abc import Collection
 
 from bemore import (
     BasicNode,
     BasicOutput,
-    ConnectorProto,
     DynamicTypeVar,
     RequiredInput,
     RequiredMultiInput,
+    InputConnectorProto,
+    OutputConnectorProto,
 )
-
-_T = TypeVar("_T")
 
 
 class Sum(BasicNode):
@@ -24,10 +24,10 @@ class Sum(BasicNode):
         in_value = self.input.get_value()
         self.output.set_value(sum(in_value))
 
-    def get_inputs(self) -> List[ConnectorProto]:
+    def get_inputs(self) -> Collection[InputConnectorProto[float]]:
         return [self.input]
 
-    def get_outputs(self) -> List[ConnectorProto]:
+    def get_outputs(self) -> Collection[OutputConnectorProto[float]]:
         return [self.output]
 
     def validate(self) -> None:
@@ -53,10 +53,10 @@ class Product(BasicNode):
 
         self.output.set_value(value)
 
-    def get_inputs(self) -> List[ConnectorProto]:
+    def get_inputs(self) -> Collection[InputConnectorProto[float]]:
         return [self.input]
 
-    def get_outputs(self) -> List[ConnectorProto]:
+    def get_outputs(self) -> Collection[OutputConnectorProto[float]]:
         return [self.output]
 
     def validate(self) -> None:
@@ -92,10 +92,10 @@ class Subtract(BasicNode):
 
         self.output.set_value(result)
 
-    def get_inputs(self) -> List[ConnectorProto]:
+    def get_inputs(self) -> Collection[InputConnectorProto[float]]:
         return [self.left, self.right]
 
-    def get_outputs(self) -> List[ConnectorProto]:
+    def get_outputs(self) -> Collection[OutputConnectorProto[float]]:
         return [self.output]
 
     def validate(self) -> None:
@@ -132,10 +132,10 @@ class Divide(BasicNode):
 
         self.output.set_value(result)
 
-    def get_inputs(self) -> List[ConnectorProto]:
+    def get_inputs(self) -> Collection[InputConnectorProto[float]]:
         return [self.numerator, self.denominator]
 
-    def get_outputs(self) -> List[ConnectorProto]:
+    def get_outputs(self) -> Collection[OutputConnectorProto[float]]:
         return [self.output]
 
     def validate(self) -> None:
@@ -160,7 +160,7 @@ class Divide(BasicNode):
         )
 
 
-class Abs(BasicNode, Generic[_T]):
+class Abs[_T](BasicNode):
     def __init__(self) -> None:
         super().__init__()
         _t = DynamicTypeVar()
@@ -172,10 +172,10 @@ class Abs(BasicNode, Generic[_T]):
         abs_val = abs(input_value)
         self.output.set_value(abs_val)
 
-    def get_inputs(self) -> List[ConnectorProto]:
+    def get_inputs(self) -> Collection[InputConnectorProto[SupportsAbs[_T]]]:
         return [self.input]
 
-    def get_outputs(self) -> List[ConnectorProto]:
+    def get_outputs(self) -> Collection[OutputConnectorProto[_T]]:
         return [self.output]
 
     def validate(self) -> None:
@@ -207,10 +207,10 @@ class Modulo(BasicNode):
 
         self.output.set_value(result)
 
-    def get_inputs(self) -> List[ConnectorProto]:
+    def get_inputs(self) -> Collection[InputConnectorProto[float]]:
         return [self.dividend, self.divisor]
 
-    def get_outputs(self) -> List[ConnectorProto]:
+    def get_outputs(self) -> Collection[OutputConnectorProto[float]]:
         return [self.output]
 
     def validate(self) -> None:

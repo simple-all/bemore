@@ -1,11 +1,17 @@
 import ast
-from typing import Generic, List, TypeVar
+from typing import List, Any
 
-from bemore import BasicNode, ConnectorProto, DynamicTypeVar, RequiredInput, BasicOutput
-_T = TypeVar("_T")
+from bemore import (
+    BasicNode,
+    DynamicTypeVar,
+    RequiredInput,
+    BasicOutput,
+    InputConnectorProto,
+    OutputConnectorProto,
+)
 
 
-class Append(BasicNode, Generic[_T]):
+class Append[_T](BasicNode):
     def __init__(self) -> None:
         super().__init__()
         self.list: RequiredInput[List[_T]] = RequiredInput(self, "list", List[_T])
@@ -19,10 +25,10 @@ class Append(BasicNode, Generic[_T]):
 
         # Output is a relay, don't need to set its value.
 
-    def get_inputs(self) -> List[ConnectorProto]:
+    def get_inputs(self) -> List[InputConnectorProto[Any]]:
         return [self.list, self.value]
 
-    def get_outputs(self) -> List[ConnectorProto]:
+    def get_outputs(self) -> List[OutputConnectorProto[List[_T]]]:
         return [self.output]
 
     def validate(self) -> None:

@@ -1,11 +1,15 @@
 import ast
-from typing import Generic
+from typing import Optional, Any
 from typing import List as _List
-from typing import Optional, TypeVar
+from collections.abc import Collection
 
-from bemore import BasicNode, BasicOutput, CodeGenerator, ConnectorProto
-
-_T = TypeVar("_T")
+from bemore import (
+    BasicNode,
+    BasicOutput,
+    CodeGenerator,
+    InputConnectorProto,
+    OutputConnectorProto,
+)
 
 
 class Int(BasicNode, CodeGenerator):
@@ -17,10 +21,10 @@ class Int(BasicNode, CodeGenerator):
     def run(self) -> None:
         self.output.set_value(self._value)
 
-    def get_inputs(self) -> _List[ConnectorProto]:
+    def get_inputs(self) -> Collection[InputConnectorProto[Any]]:
         return []
 
-    def get_outputs(self) -> _List[ConnectorProto]:
+    def get_outputs(self) -> Collection[OutputConnectorProto[int]]:
         return [self.output]
 
     def validate(self) -> None:
@@ -40,10 +44,10 @@ class Float(BasicNode):
     def run(self) -> None:
         self.output.set_value(self._value)
 
-    def get_inputs(self) -> _List[ConnectorProto]:
+    def get_inputs(self) -> Collection[InputConnectorProto[Any]]:
         return []
 
-    def get_outputs(self) -> _List[ConnectorProto]:
+    def get_outputs(self) -> Collection[OutputConnectorProto[float]]:
         return [self.output]
 
     def validate(self) -> None:
@@ -63,10 +67,10 @@ class String(BasicNode):
     def run(self) -> None:
         self.output.set_value(self._value)
 
-    def get_inputs(self) -> _List[ConnectorProto]:
+    def get_inputs(self) -> Collection[InputConnectorProto[Any]]:
         return []
 
-    def get_outputs(self) -> _List[ConnectorProto]:
+    def get_outputs(self) -> Collection[OutputConnectorProto[str]]:
         return [self.output]
 
     def validate(self) -> None:
@@ -77,7 +81,7 @@ class String(BasicNode):
         return ast.parse(line)
 
 
-class List(BasicNode, Generic[_T]):
+class List[_T](BasicNode):
     def __init__(self) -> None:
         super().__init__()
         self.output: BasicOutput[_List[_T]] = BasicOutput(self, "output", _List[_T])
@@ -89,10 +93,10 @@ class List(BasicNode, Generic[_T]):
         else:
             self.output.set_value([])
 
-    def get_inputs(self) -> _List[ConnectorProto]:
+    def get_inputs(self) -> _List[InputConnectorProto[Any]]:
         return []
 
-    def get_outputs(self) -> _List[ConnectorProto]:
+    def get_outputs(self) -> _List[OutputConnectorProto[_List[_T]]]:
         return [self.output]
 
     def validate(self) -> None:

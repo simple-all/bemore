@@ -1,7 +1,8 @@
-from typing import TYPE_CHECKING, Iterable, Optional, Protocol
+from typing import TYPE_CHECKING, Optional, Protocol, Any
+from collections.abc import Collection
 
 from bemore.core.code_gen import CodeGenerator
-from bemore.core.connectors import ConnectorProto
+from bemore.core.connectors import ConnectorProto, InputConnectorProto, OutputConnectorProto
 from bemore.core.logging import get_node_logger, get_node_runtime_logger, get_node_validation_logger
 
 if TYPE_CHECKING:
@@ -29,10 +30,10 @@ class Node(CodeGenerator, Protocol):
     def run(self) -> None:
         raise NotImplementedError()
 
-    def get_inputs(self) -> Iterable[ConnectorProto]:
+    def get_inputs(self) -> Collection[InputConnectorProto[Any]]:
         raise NotImplementedError()
 
-    def get_outputs(self) -> Iterable[ConnectorProto]:
+    def get_outputs(self) -> Collection[OutputConnectorProto[Any]]:
         raise NotImplementedError()
 
     def is_input(self, connector: ConnectorProto) -> bool:

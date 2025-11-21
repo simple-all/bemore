@@ -1,10 +1,9 @@
 import ast
-from typing import Any, Dict, Generic, Iterable, TypeVar, Tuple
+from typing import Any, Dict, Generic, TypeVar, Tuple, Set, Collection
 
 from bemore import (
     BasicNode,
     BasicSystem,
-    ConnectorProto,
     RequiredInput,
     SystemProto,
 )
@@ -17,9 +16,9 @@ _T = TypeVar("_T")
 class For(BasicNode, Generic[_T]):
     def __init__(self) -> None:
         super().__init__()
-        self._inputs: Dict[str, InputConnectorProto] = {}
-        self._iterables: Dict[str, InputConnectorProto] = {}
-        self._outputs: Dict[str, OutputConnectorProto] = {}
+        self._inputs: Dict[str, InputConnectorProto[Any]] = {}
+        self._iterables: Dict[str, InputConnectorProto[Any]] = {}
+        self._outputs: Dict[str, OutputConnectorProto[Any]] = {}
 
         # Initialize with a basic system
         self._subsystem: SystemProto = BasicSystem("for")
@@ -33,16 +32,30 @@ class For(BasicNode, Generic[_T]):
         # Set the new system
         self._subsystem = subsystem
 
-    def make_iterable(self, name: str):
+    @property
+    def input_names(self) -> Set[str]:
+        all_input_names = set(self._inputs).union(self._iterables)
+        return all_input_names
+
+    def make_iterable(self, name: str) -> None:
+        assert name in self._inputs
         self._iterables[name] = self._inputs[name]
+        del self._inputs[name]
 
-    def make_singular(self, name: str):
-        pass
+    def make_singular(self, name: str) -> None:
+        assert name in self._iterables
+        self._inputs[name] = self._iterables[name]
+        del self._iterables[name]
 
-    def add_input(self, name: str, signature: Any, is_iterable: bool) -> Tuple[InputConnectorProto, KeywordInput]:
-        assert name not in self._inputs, f"Input with the name {name} already exists."
+    def add_input(
+        self,
+        name: str,
+        signature: Any,
+        is_iterable: bool,
+    ) -> Tuple[InputConnectorProto[Any], KeywordInput[Any]]:
+        assert name not in self.input_names, f"Input with the name {name} already exists."
 
-        subsystem_input_node = KeywordInput(name)
+        subsystem_input_node = KeywordInput[Any](name)
         self._subsystem.add_node(subsystem_input_node)
         self._inputs[name] = RequiredInput(self, name, signature)
 
@@ -60,7 +73,11 @@ class For(BasicNode, Generic[_T]):
                 self._subsystem.remove_node(node)
                 break
 
-    def add_output(self, name: str, signature: Any) -> OutputConnectorProto:
+    def add_output(
+        self,
+        name: str,
+        signature: Any,
+    ) -> OutputConnectorProto[Any]:
         assert name not in self._outputs, f"Output with the name {name} already exists."
         self._outputs[name] = BasicOutput(self, name, signature)
 
@@ -77,10 +94,10 @@ class For(BasicNode, Generic[_T]):
                 self._subsystem.remove_node(node)
                 break
 
-    def get_inputs(self) -> Iterable[ConnectorProto]:
+    def get_inputs(self) -> Collection[InputConnectorProto[Any]]:
         return self._inputs.values()
 
-    def get_outputs(self) -> Iterable[ConnectorProto]:
+    def get_outputs(self) -> Collection[OutputConnectorProto[Any]]:
         return self._outputs.values()
 
     def run(self) -> None:
@@ -95,7 +112,7 @@ class For(BasicNode, Generic[_T]):
             inputs.update(iterable_inputs)
             output_map = self._subsystem.run(**inputs)
 
-        for name, value in output_map.keys():
+        for name, value in output_map.items():
             self._outputs[name].set_value(value)
 
     def validate(self) -> None:
@@ -106,18 +123,20 @@ class For(BasicNode, Generic[_T]):
             output_node.validate()
 
     def generate_ast(self) -> ast.Module:
-        for_loop = ast.For(
-            iter=ast.Name(self.iterator.code_gen_name),
-            target=ast.Name(self._iterator_relay.output.code_gen_name),
-            body=self._subsystem.generate_ast().body,
-            col_offset=0,
-            end_col_offset=None,
-            end_lineno=None,
-            lineno=0,
-            orelse=[],
-        )
+        #     for_loop = ast.For(
+        #         iter=ast.Name(self.iterator.code_gen_name),
+        #         target=ast.Name(self._iterator_relay.output.code_gen_name),
+        #         body=self._subsystem.generate_ast().body,
+        #         col_offset=0,
+        #         end_col_offset=None,
+        #         end_lineno=None,
+        #         lineno=0,
+        #         orelse=[],
+        #     )
 
-        return ast.Module(body=[for_loop], type_ignores=[])
+        #     return ast.Module(body=[for_loop], type_ignores=[])
+
+        return ast.Module(body=[], type_ignores=[])
 
 
 # @dataclass(frozen=True)

@@ -1,10 +1,11 @@
 from ast import Module
-from typing import Iterable, Optional
+from typing import Optional, Any
 from bemore.core.typing import DynamicTypeVar
-from bemore.core.connectors import ConnectorProto, RequiredInput
+from bemore.core.connectors import RequiredInput
 from bemore.core.logging import get_node_logger, get_node_runtime_logger, get_node_validation_logger
 from bemore.core.system import InputProto, OutputProto, SystemProto
-from bemore.core.connectors import BasicOutput
+from bemore.core.connectors import BasicOutput, InputConnectorProto, OutputConnectorProto
+from collections.abc import Collection
 
 
 class KeywordInput[_T](InputProto[_T]):
@@ -41,10 +42,10 @@ class KeywordInput[_T](InputProto[_T]):
         # Nothing to do
         pass
 
-    def get_inputs(self) -> Iterable[ConnectorProto]:
+    def get_inputs(self) -> Collection[InputConnectorProto[Any]]:
         return []
 
-    def get_outputs(self) -> Iterable[ConnectorProto]:
+    def get_outputs(self) -> Collection[OutputConnectorProto[_T]]:
         return [self.output]
 
     def validate(self) -> None:
@@ -130,10 +131,10 @@ class Output[_T](OutputProto[_T]):
         # Nothing to do
         pass
 
-    def get_inputs(self) -> Iterable[ConnectorProto]:
+    def get_inputs(self) -> Collection[InputConnectorProto[_T]]:
         return [self.input]
 
-    def get_outputs(self) -> Iterable[ConnectorProto]:
+    def get_outputs(self) -> Collection[OutputConnectorProto[Any]]:
         return []
 
     def validate(self) -> None:
