@@ -1,7 +1,7 @@
 from typing import Dict, Tuple
 
 from bemore import BasicSystem, Float, connect, generate_code
-from bemore.control_flow.basic import For
+from bemore.control_flow.for_loop import For
 from bemore.math.basic import Modulo, Product
 from bemore.types.basic import Int, List
 from bemore.types.operators import Append
