@@ -4,8 +4,8 @@ from typing import Any, Dict, Iterable, List, Protocol, TypeVar, runtime_checkab
 import networkx as nx
 
 from bemore.core.code_gen import CodeGeneratorProto
-from bemore.core.node import NodeProto
 from bemore.core.connectors import OutputConnectorProto
+from bemore.core.node import NodeProto
 
 _T_co = TypeVar("_T_co", covariant=True)
 _T_contra = TypeVar("_T_contra", contravariant=True)

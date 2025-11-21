@@ -1,5 +1,3 @@
-
-
 # def make_for_if_loop_system() -> Tuple[BasicSystem, List[int], List[int]]:
 
 #     # True system, append even values
