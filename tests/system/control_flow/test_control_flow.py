@@ -25,9 +25,10 @@ def make_for_loop_system() -> Tuple[BasicSystem, List[float]]:
     inner_sys.add_nodes(producter, appender)
     outer_sys.add_nodes(my_list, factor, loop, new_list)
 
-    iterator_input, subsystem_iterator_node = loop.add_input("iterator", list, True)
-    factor_input, subsystem_factor_node = loop.add_input("factor", float, False)
-    new_list_input, subsystem_new_list_node = loop.add_input("new_list", list, False)
+    iterator_input, subsystem_iterator_node = loop.add_input("iterator", list)
+    loop.make_iterable("iterator")
+    factor_input, subsystem_factor_node = loop.add_input("factor", float)
+    new_list_input, subsystem_new_list_node = loop.add_input("new_list", list)
 
     # Make all connections for the inner system
     connect(producter.output, appender.value)

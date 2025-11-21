@@ -1,8 +1,8 @@
 import ast
+from collections.abc import Collection
 from typing import Any
 
 from bemore import BasicNode, InputConnectorProto, OutputConnectorProto, RequiredInput
-from collections.abc import Collection
 
 
 class Display(BasicNode):

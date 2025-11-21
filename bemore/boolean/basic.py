@@ -1,14 +1,8 @@
-from typing import Iterable, List
-from typing import Any as _Any
 from collections.abc import Collection
+from typing import Any as _Any
+from typing import Iterable, List
 
-from bemore import (
-    BasicOutput,
-    Node,
-    RequiredInput,
-    InputConnectorProto,
-    OutputConnectorProto,
-)
+from bemore import BasicOutput, InputConnectorProto, Node, OutputConnectorProto, RequiredInput
 
 
 class All(Node):

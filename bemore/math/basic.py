@@ -1,16 +1,16 @@
 import ast
 import math
-from typing import SupportsAbs
 from collections.abc import Collection
+from typing import SupportsAbs
 
 from bemore import (
     BasicNode,
     BasicOutput,
     DynamicTypeVar,
-    RequiredInput,
-    RequiredMultiInput,
     InputConnectorProto,
     OutputConnectorProto,
+    RequiredInput,
+    RequiredMultiInput,
 )
 
 

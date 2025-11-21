@@ -1,10 +1,9 @@
 import ast
-from typing import List, Protocol, Iterable, runtime_checkable, Dict, Any, TypeVar
+from typing import Any, Dict, Iterable, List, Protocol, TypeVar, runtime_checkable
 
 import networkx as nx
 
 from bemore import CodeGenerator, Node
-
 
 _T_co = TypeVar("_T_co", covariant=True)
 _T_contra = TypeVar("_T_contra", contravariant=True)

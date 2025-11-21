@@ -1,11 +1,16 @@
 from ast import Module
-from typing import Optional, Any
-from bemore.core.typing import DynamicTypeVar
-from bemore.core.connectors import RequiredInput
+from collections.abc import Collection
+from typing import Any, Optional
+
+from bemore.core.connectors import (
+    BasicOutput,
+    InputConnectorProto,
+    OutputConnectorProto,
+    RequiredInput,
+)
 from bemore.core.logging import get_node_logger, get_node_runtime_logger, get_node_validation_logger
 from bemore.core.system import InputProto, OutputProto, SystemProto
-from bemore.core.connectors import BasicOutput, InputConnectorProto, OutputConnectorProto
-from collections.abc import Collection
+from bemore.core.typing import DynamicTypeVar
 
 
 class KeywordInput[_T](InputProto[_T]):

@@ -1,5 +1,5 @@
-from typing import TYPE_CHECKING, Optional, Protocol, Any
 from collections.abc import Collection
+from typing import TYPE_CHECKING, Any, Optional, Protocol
 
 from bemore.core.code_gen import CodeGenerator
 from bemore.core.connectors import ConnectorProto, InputConnectorProto, OutputConnectorProto

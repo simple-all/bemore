@@ -1,13 +1,13 @@
 import ast
-from typing import List, Any
+from typing import Any, List
 
 from bemore import (
     BasicNode,
-    DynamicTypeVar,
-    RequiredInput,
     BasicOutput,
+    DynamicTypeVar,
     InputConnectorProto,
     OutputConnectorProto,
+    RequiredInput,
 )
 
 

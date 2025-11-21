@@ -1,15 +1,10 @@
 import ast
-from typing import Optional, Any
-from typing import List as _List
 from collections.abc import Collection
+from typing import Any
+from typing import List as _List
+from typing import Optional
 
-from bemore import (
-    BasicNode,
-    BasicOutput,
-    CodeGenerator,
-    InputConnectorProto,
-    OutputConnectorProto,
-)
+from bemore import BasicNode, BasicOutput, CodeGenerator, InputConnectorProto, OutputConnectorProto
 
 
 class Int(BasicNode, CodeGenerator):

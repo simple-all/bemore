@@ -1,12 +1,7 @@
 import ast
-from typing import Any, Dict, Generic, TypeVar, Tuple, Set, Collection
+from typing import Any, Collection, Dict, Generic, Set, Tuple, TypeVar
 
-from bemore import (
-    BasicNode,
-    BasicSystem,
-    RequiredInput,
-    SystemProto,
-)
+from bemore import BasicNode, BasicSystem, RequiredInput, SystemProto
 from bemore.core.connectors import BasicOutput, InputConnectorProto, OutputConnectorProto
 from bemore.core.system_nodes import KeywordInput, Output
 
@@ -51,16 +46,12 @@ class For(BasicNode, Generic[_T]):
         self,
         name: str,
         signature: Any,
-        is_iterable: bool,
     ) -> Tuple[InputConnectorProto[Any], KeywordInput[Any]]:
         assert name not in self.input_names, f"Input with the name {name} already exists."
 
         subsystem_input_node = KeywordInput[Any](name)
         self._subsystem.add_node(subsystem_input_node)
         self._inputs[name] = RequiredInput(self, name, signature)
-
-        if is_iterable:
-            self.make_iterable(name)
 
         return self._inputs[name], subsystem_input_node
 
