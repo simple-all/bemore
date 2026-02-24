@@ -3,3 +3,4 @@ py_3.11.4_env/*
 requirements.txt
 dist/*
 .coverage
+build/*
