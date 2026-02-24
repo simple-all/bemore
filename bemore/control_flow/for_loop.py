@@ -1,14 +1,12 @@
 import ast
-from typing import Any, Collection, Dict, Generic, Set, Tuple, TypeVar
+from typing import Any, Collection, Dict, Set, Tuple
 
 from bemore import BasicNode, BasicSystem, RequiredInput, SystemProto
 from bemore.core.connectors import BasicOutput, InputConnectorProto, OutputConnectorProto
 from bemore.core.system_nodes import KeywordInput, Output
 
-_T = TypeVar("_T")
 
-
-class For(BasicNode, Generic[_T]):
+class For[T](BasicNode):
     def __init__(self) -> None:
         super().__init__()
         self._inputs: Dict[str, InputConnectorProto[Any]] = {}
