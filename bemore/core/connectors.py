@@ -13,9 +13,8 @@ from bemore.core.type_checking import check_types
 if TYPE_CHECKING:
     from bemore.core.node import NodeProto
 
-_T = TypeVar("_T")
-_T_co = TypeVar("_T_co", covariant=True)
-_T_contra = TypeVar("_T_contra", contravariant=True)
+T_co = TypeVar("T_co", covariant=True)
+T_contra = TypeVar("T_contra", contravariant=True)
 
 
 class ConnectResult(Enum):
@@ -48,29 +47,29 @@ class ConnectorProto(CodeGeneratorProto, Protocol):
         return f"{self.__module__}.{self.__class__.__name__}[{self.signature}]"
 
 
-class InputConnectorProto(ConnectorProto, Protocol[_T_contra]):
-    def connect(self, other: "OutputConnectorProto[_T_contra]") -> ConnectResult: ...
+class InputConnectorProto(ConnectorProto, Protocol[T_contra]):
+    def connect(self, other: "OutputConnectorProto[T_contra]") -> ConnectResult: ...
     def get_value(self) -> Any: ...
 
 
-class RequiredInputConnectorProto[_T](InputConnectorProto[_T]):
-    def get_value(self) -> _T:
+class RequiredInputConnectorProto[T](InputConnectorProto[T]):
+    def get_value(self) -> T:
         raise NotImplementedError()
 
 
-class OptionalConnectorProto[_T](InputConnectorProto[_T]):
-    def get_value(self) -> Optional[_T]: ...
+class OptionalConnectorProto[T](InputConnectorProto[T]):
+    def get_value(self) -> Optional[T]: ...
 
 
-class OutputConnectorProto(ConnectorProto, Protocol[_T_co]):
-    def connect(self, other: "InputConnectorProto[_T_co]") -> ConnectResult: ...
+class OutputConnectorProto(ConnectorProto, Protocol[T_co]):
+    def connect(self, other: "InputConnectorProto[T_co]") -> ConnectResult: ...
     def set_value(self, value: Any) -> None: ...
-    def get_value(self) -> _T_co: ...
+    def get_value(self) -> T_co: ...
 
 
-def connect(
-    output: OutputConnectorProto[_T],
-    input: InputConnectorProto[_T],
+def connect[T](
+    output: OutputConnectorProto[T],
+    input: InputConnectorProto[T],
 ) -> Tuple[ConnectResult, ConnectResult]:
     if output.node.system is not input.node.system:
         raise Exception("Connectors do not belong to the same system.")
@@ -84,12 +83,12 @@ def connect(
 # Input types
 
 
-class SingleInput(InputConnectorProto[_T]):
+class SingleInput[T](InputConnectorProto[T]):
     def __init__(self, node: "NodeProto", name: str, signature: Any) -> None:
         self._node = node
         self._name = name
         self._signature = signature
-        self._connection: Optional[OutputConnectorProto[_T]] = None
+        self._connection: Optional[OutputConnectorProto[T]] = None
 
         self._logger = get_connector_logger(self)
         self._runtime_logger = get_connector_runtime_logger(self)
@@ -111,7 +110,7 @@ class SingleInput(InputConnectorProto[_T]):
     def signature(self) -> Any:
         return self._signature
 
-    def connect(self, other: "OutputConnectorProto[_T]") -> ConnectResult:
+    def connect(self, other: "OutputConnectorProto[T]") -> ConnectResult:
         self._connection = other
         return ConnectResult.SUCCESS
 
@@ -122,9 +121,9 @@ class SingleInput(InputConnectorProto[_T]):
         return []
 
 
-class RequiredInput(SingleInput[_T]):
+class RequiredInput[T](SingleInput[T]):
 
-    def get_value(self) -> _T:
+    def get_value(self) -> T:
         if self._connection is None:
             self._logger.error(
                 f"Nothing connected to input '{self.name}' of node {self.node.name}, "
@@ -154,9 +153,9 @@ class RequiredInput(SingleInput[_T]):
         return self._connection.code_gen_name
 
 
-class OptionalInput(SingleInput[_T]):
+class OptionalInput[T](SingleInput[T]):
 
-    def get_value(self) -> Optional[_T]:
+    def get_value(self) -> Optional[T]:
         if self._connection:
             return self._connection.get_value()
 
@@ -186,12 +185,12 @@ class OptionalInput(SingleInput[_T]):
         return f"{self.name}_{hash(self)}"
 
 
-class MultiInput(InputConnectorProto[_T]):
+class MultiInput[T](InputConnectorProto[T]):
     def __init__(self, node: "NodeProto", name: str, signature: Any) -> None:
         self._node = node
         self._name = name
         self._signature = signature
-        self._connections: List[OutputConnectorProto[_T]] = []
+        self._connections: List[OutputConnectorProto[T]] = []
 
         self._logger = get_connector_logger(self)
         self._runtime_logger = get_connector_runtime_logger(self)
@@ -213,7 +212,7 @@ class MultiInput(InputConnectorProto[_T]):
     def signature(self) -> Any:
         return self._signature
 
-    def connect(self, other: "OutputConnectorProto[_T]") -> ConnectResult:
+    def connect(self, other: "OutputConnectorProto[T]") -> ConnectResult:
         if other in self._connections:
             return ConnectResult.ALREADY_CONNECTED
 
@@ -241,9 +240,9 @@ class MultiInput(InputConnectorProto[_T]):
         return f"{self.name}_{hash(self)}"
 
 
-class RequiredMultiInput(MultiInput[_T]):
+class RequiredMultiInput[T](MultiInput[T]):
 
-    def get_value(self) -> List[_T]:
+    def get_value(self) -> List[T]:
         if not self._connections:
             self._logger.error(
                 f"Nothing connected to input '{self.name}' of node {self.node}, "
@@ -259,9 +258,9 @@ class RequiredMultiInput(MultiInput[_T]):
             self._validation_logger.error(f"Nothing connected to input '{self.name}'.")
 
 
-class OptionalMultiInput(MultiInput[_T]):
+class OptionalMultiInput[T](MultiInput[T]):
 
-    def get_value(self) -> List[_T]:
+    def get_value(self) -> List[T]:
         return [connection.get_value() for connection in self._connections]
 
     def validate(self) -> None:
@@ -272,13 +271,13 @@ class OptionalMultiInput(MultiInput[_T]):
 NULL_VALUE_SENTINEL = object()
 
 
-class BasicOutput(OutputConnectorProto[_T]):
+class BasicOutput[T](OutputConnectorProto[T]):
     def __init__(self, node: "NodeProto", name: str, signature: Any) -> None:
         self._node = node
         self._name = name
         self._signature = signature
-        self._connections: List[InputConnectorProto[_T]] = []
-        self._value: _T = NULL_VALUE_SENTINEL  # type: ignore
+        self._connections: List[InputConnectorProto[T]] = []
+        self._value: T = NULL_VALUE_SENTINEL  # type: ignore
 
         self._logger = get_connector_logger(self)
         self._runtime_logger = get_connector_runtime_logger(self)
@@ -300,14 +299,14 @@ class BasicOutput(OutputConnectorProto[_T]):
     def signature(self) -> Any:
         return self._signature
 
-    def get_value(self) -> _T:
+    def get_value(self) -> T:
         assert self._value is not NULL_VALUE_SENTINEL
         return self._value
 
-    def set_value(self, value: _T) -> None:
+    def set_value(self, value: T) -> None:
         self._value = value
 
-    def connect(self, other: "InputConnectorProto[_T]") -> ConnectResult:
+    def connect(self, other: "InputConnectorProto[T]") -> ConnectResult:
         if other in self._connections:
             return ConnectResult.ALREADY_CONNECTED
 

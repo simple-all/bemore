@@ -7,12 +7,12 @@ from bemore.core.code_gen import CodeGeneratorProto
 from bemore.core.connectors import OutputConnectorProto
 from bemore.core.node import NodeProto
 
-_T_co = TypeVar("_T_co", covariant=True)
-_T_contra = TypeVar("_T_contra", contravariant=True)
+T_co = TypeVar("T_co", covariant=True)
+T_contra = TypeVar("T_contra", contravariant=True)
 
 
 @runtime_checkable
-class InputProto(NodeProto, Protocol[_T_contra]):
+class InputProto(NodeProto, Protocol[T_contra]):
 
     output: OutputConnectorProto[Any]
 
@@ -20,16 +20,13 @@ class InputProto(NodeProto, Protocol[_T_contra]):
     def is_required(self) -> bool:
         raise NotImplementedError
 
-    # @property
-    # def output(self) -> OutputConnectorProto: ...
-
-    def set_value(self, value: _T_contra) -> None:
+    def set_value(self, value: T_contra) -> None:
         raise NotImplementedError()
 
 
 @runtime_checkable
-class OutputProto(NodeProto, Protocol[_T_co]):
-    def get_value(self) -> _T_co:
+class OutputProto(NodeProto, Protocol[T_co]):
+    def get_value(self) -> T_co:
         raise NotImplementedError()
 
 
