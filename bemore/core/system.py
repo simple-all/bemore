@@ -20,9 +20,6 @@ class InputProto(NodeProto, Protocol[T_contra]):
     def is_required(self) -> bool:
         raise NotImplementedError
 
-    # @property
-    # def output(self) -> OutputConnectorProto: ...
-
     def set_value(self, value: T_contra) -> None:
         raise NotImplementedError()
 
