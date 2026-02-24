@@ -3,9 +3,9 @@ from typing import Any, Generic, List, SupportsIndex, TypeVar
 
 from bemore.core.connectors import (
     BasicOutput,
-    Connector,
-    Input,
-    Output,
+    ConnectorProto,
+    InputConnectorProto,
+    OutputConnectorProto,
     RequiredInput,
     RequiredMultiInput,
 )
@@ -36,10 +36,10 @@ class Indexer(MathNode, Generic[_T]):
         self.index.validate()
         self.output.validate()
 
-    def get_inputs(self) -> List[Connector]:
+    def get_inputs(self) -> List[ConnectorProto]:
         return [self.indexable, self.index]
 
-    def get_outputs(self) -> List[Connector]:
+    def get_outputs(self) -> List[ConnectorProto]:
         return [self.output]
 
 
@@ -52,10 +52,10 @@ class Int(MathNode):
     def run(self) -> None:
         self.output.set_value(self._value)
 
-    def get_inputs(self) -> List[Input]:
+    def get_inputs(self) -> List[InputConnectorProto]:
         return []
 
-    def get_outputs(self) -> List[Output]:
+    def get_outputs(self) -> List[OutputConnectorProto]:
         return [self.output]
 
     def validate(self) -> None:
@@ -71,10 +71,10 @@ class Float(MathNode):
     def run(self) -> None:
         self.output.set_value(self._value)
 
-    def get_inputs(self) -> List[Input]:
+    def get_inputs(self) -> List[InputConnectorProto]:
         return []
 
-    def get_outputs(self) -> List[Output]:
+    def get_outputs(self) -> List[OutputConnectorProto]:
         return [self.output]
 
     def validate(self) -> None:
@@ -90,10 +90,10 @@ class String(MathNode):
     def run(self) -> None:
         self.output.set_value(self._value)
 
-    def get_inputs(self) -> List[Input]:
+    def get_inputs(self) -> List[InputConnectorProto]:
         return []
 
-    def get_outputs(self) -> List[Output]:
+    def get_outputs(self) -> List[OutputConnectorProto]:
         return [self.output]
 
     def validate(self) -> None:
@@ -110,10 +110,10 @@ class Sum(MathNode):
         in_value = self.input.get_value()
         self.output.set_value(sum(in_value))
 
-    def get_inputs(self) -> List[Input]:
+    def get_inputs(self) -> List[InputConnectorProto]:
         return [self.input]
 
-    def get_outputs(self) -> List[Output]:
+    def get_outputs(self) -> List[OutputConnectorProto]:
         return [self.output]
 
     def validate(self) -> None:
@@ -132,10 +132,10 @@ class Product(MathNode):
 
         self.output.set_value(value)
 
-    def get_inputs(self) -> List[Input]:
+    def get_inputs(self) -> List[InputConnectorProto]:
         return [self.input]
 
-    def get_outputs(self) -> List[Output]:
+    def get_outputs(self) -> List[OutputConnectorProto]:
         return [self.output]
 
     def validate(self) -> None:
@@ -151,10 +151,10 @@ class Printer(MathNode):
     def run(self) -> None:
         print(f"{self.name}: {self.input.get_value()}")
 
-    def get_inputs(self) -> List[Input]:
+    def get_inputs(self) -> List[InputConnectorProto]:
         return [self.input]
 
-    def get_outputs(self) -> List[Output]:
+    def get_outputs(self) -> List[OutputConnectorProto]:
         return []
 
     def validate(self) -> None:

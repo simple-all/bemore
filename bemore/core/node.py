@@ -1,37 +1,56 @@
-from typing import Iterable, Protocol
+from collections.abc import Collection
+from typing import TYPE_CHECKING, Any, Optional, Protocol
 
-from bemore.core.code_gen import CodeGenerator
-from bemore.core.connectors import Connector
+from bemore.core.code_gen import CodeGeneratorProto
+from bemore.core.connectors import ConnectorProto, InputConnectorProto, OutputConnectorProto
 from bemore.core.logging import get_node_logger, get_node_runtime_logger, get_node_validation_logger
 
+if TYPE_CHECKING:
+    from bemore.core.system import SystemProto
 
-class Node(CodeGenerator, Protocol):
+
+class NodeProto(CodeGeneratorProto, Protocol):
 
     @property
-    def name(self) -> str: ...
+    def name(self) -> str:
+        raise NotImplementedError()
 
     @name.setter
-    def name(self, name: str) -> None: ...
+    def name(self, name: str) -> None:
+        raise NotImplementedError()
 
-    def run(self) -> None: ...
+    @property
+    def system(self) -> Optional["SystemProto"]:
+        raise NotImplementedError()
 
-    def get_inputs(self) -> Iterable[Connector]: ...
+    @system.setter
+    def system(self, system: Optional["SystemProto"]) -> None:
+        raise NotImplementedError()
 
-    def get_outputs(self) -> Iterable[Connector]: ...
+    def run(self) -> None:
+        raise NotImplementedError()
 
-    def is_input(self, connector: Connector) -> bool:
+    def get_inputs(self) -> Collection[InputConnectorProto[Any]]:
+        raise NotImplementedError()
+
+    def get_outputs(self) -> Collection[OutputConnectorProto[Any]]:
+        raise NotImplementedError()
+
+    def is_input(self, connector: ConnectorProto) -> bool:
         return connector in self.get_inputs()
 
-    def is_output(self, connector: Connector) -> bool:
+    def is_output(self, connector: ConnectorProto) -> bool:
         return connector in self.get_outputs()
 
-    def validate(self) -> None: ...
+    def validate(self) -> None:
+        raise NotImplementedError()
 
 
-class BasicNode(Node):
+class BasicNode(NodeProto):
 
     def __init__(self) -> None:
         self._name = type(self).__name__
+        self._system: Optional["SystemProto"] = None
         self._logger = get_node_logger(self)
         self._runtime_logger = get_node_runtime_logger(self)
         self._validation_logger = get_node_validation_logger(self)
@@ -43,3 +62,11 @@ class BasicNode(Node):
     @name.setter
     def name(self, name: str) -> None:
         self._name = name
+
+    @property
+    def system(self) -> Optional["SystemProto"]:
+        return self._system
+
+    @system.setter
+    def system(self, system: Optional["SystemProto"]) -> None:
+        self._system = system

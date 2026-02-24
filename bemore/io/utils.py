@@ -1,7 +1,8 @@
 import ast
-from typing import Any, List
+from collections.abc import Collection
+from typing import Any
 
-from bemore import BasicNode, Connector, RequiredInput
+from bemore import BasicNode, InputConnectorProto, OutputConnectorProto, RequiredInput
 
 
 class Display(BasicNode):
@@ -17,10 +18,10 @@ class Display(BasicNode):
     def run(self) -> None:
         self._to_display = self.input.get_value()
 
-    def get_inputs(self) -> List[Connector]:
+    def get_inputs(self) -> Collection[InputConnectorProto[Any]]:
         return [self.input]
 
-    def get_outputs(self) -> List[Connector]:
+    def get_outputs(self) -> Collection[OutputConnectorProto[Any]]:
         return []
 
     def validate(self) -> None:
